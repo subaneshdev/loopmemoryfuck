@@ -100,7 +100,7 @@ export async function POST(request: NextRequest) {
         // Handle tools/call request
         if (method === 'tools/call') {
             const { name, arguments: args } = params;
-            const userId = 'default-user'; // In production, get from auth
+            const userId = '00000000-0000-0000-0000-000000000000'; // In production, get from auth
 
             switch (name) {
                 case 'addMemory': {

@@ -19,7 +19,7 @@ export async function POST(request: NextRequest) {
         }
 
         // For now, use a default user ID (in production, get from auth session)
-        const userId = 'default-user';
+        const userId = '00000000-0000-0000-0000-000000000000';
 
         // Generate query embedding
         const queryEmbedding = await generateEmbedding(query);
