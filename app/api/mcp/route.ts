@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/supabase-server';
+import { extractBearerToken, verifyAccessToken } from '@/lib/oauth';
 import { db } from '@/lib/supabase';
 import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
@@ -88,6 +89,31 @@ const TOOLS = [
 // Handle MCP requests
 export async function POST(request: NextRequest) {
     try {
+        // Try to get user ID from OAuth token first
+        const authHeader = request.headers.get('Authorization');
+        const token = extractBearerToken(authHeader);
+        let userId: string;
+        let userEmail: string = 'unknown';
+
+        if (token) {
+            // Validate OAuth token
+            const tokenData = await verifyAccessToken(token);
+            if (tokenData) {
+                userId = tokenData.userId;
+                userEmail = tokenData.email;
+            } else {
+                return NextResponse.json(
+                    { error: 'Invalid or expired token' },
+                    { status: 401 }
+                );
+            }
+        } else {
+            // Fallback to session-based auth (for web dashboard)
+            const session = await getServerSession();
+            userId = session?.user?.id || '00000000-0000-0000-0000-000000000000';
+            userEmail = session?.user?.email || 'default@example.com';
+        }
+
         const body = await request.json();
         const { method, params } = body;
 
@@ -101,10 +127,6 @@ export async function POST(request: NextRequest) {
         // Handle tools/call request
         if (method === 'tools/call') {
             const { name, arguments: args } = params;
-
-            // Get authenticated user for MCP operations
-            const session = await getServerSession();
-            const userId = session?.user?.id || '00000000-0000-0000-0000-000000000000';
 
             switch (name) {
                 case 'addMemory': {
@@ -185,15 +207,13 @@ export async function POST(request: NextRequest) {
                 }
 
                 case 'whoAmI': {
-                    // In production, fetch actual user data
                     return NextResponse.json({
                         content: [
                             {
                                 type: 'text',
                                 text: JSON.stringify({
                                     id: userId,
-                                    email: 'user@example.com',
-                                    message: 'This is a default user. In production, this would show actual user data.',
+                                    email: userEmail,
                                 }, null, 2),
                             },
                         ],
