@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from '@/lib/supabase-auth';
 import { db } from '@/lib/supabase';
 import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
@@ -100,7 +101,10 @@ export async function POST(request: NextRequest) {
         // Handle tools/call request
         if (method === 'tools/call') {
             const { name, arguments: args } = params;
-            const userId = '00000000-0000-0000-0000-000000000000'; // In production, get from auth
+
+            // Get authenticated user for MCP operations
+            const session = await getServerSession();
+            const userId = session?.user?.id || '00000000-0000-0000-0000-000000000000';
 
             switch (name) {
                 case 'addMemory': {

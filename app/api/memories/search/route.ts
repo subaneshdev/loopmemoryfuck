@@ -2,11 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/supabase';
 import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
+import { getServerSession } from '@/lib/supabase-auth';
 import type { SearchMemoriesRequest, SearchMemoriesResponse } from '@/types';
 
 // POST /api/memories/search - Semantic search
 export async function POST(request: NextRequest) {
     try {
+        // Get authenticated user
+        const session = await getServerSession();
+        if (!session) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const userId = session.user.id;
+
         const body: SearchMemoriesRequest = await request.json();
         const { query, projectId, limit = 10, minScore = 0.7 } = body;
 
@@ -17,9 +29,6 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
-        // For now, use a default user ID (in production, get from auth session)
-        const userId = '00000000-0000-0000-0000-000000000000';
 
         // Generate query embedding
         const queryEmbedding = await generateEmbedding(query);

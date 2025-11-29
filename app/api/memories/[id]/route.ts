@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/supabase';
 import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
+import { getServerSession } from '@/lib/supabase-auth';
 
 // GET /api/memories/[id] - Get a single memory
 export async function GET(
@@ -9,6 +10,15 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Get authenticated user
+        const session = await getServerSession();
+        if (!session) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
         const { id } = await params;
         const memory = await db.memories.findById(id);
 

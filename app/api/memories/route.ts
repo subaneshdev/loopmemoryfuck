@@ -4,10 +4,22 @@ import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
 import { generateId } from '@/lib/utils';
 import type { CreateMemoryRequest, CreateMemoryResponse } from '@/types';
+import { getServerSession } from '@/lib/supabase-auth';
 
 // POST /api/memories - Create a new memory
 export async function POST(request: NextRequest) {
     try {
+        // Get authenticated user
+        const session = await getServerSession();
+        if (!session) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const userId = session.user.id;
+
         const body: CreateMemoryRequest = await request.json();
         const { text, source, projectId, tags, metadata } = body;
 
@@ -18,9 +30,6 @@ export async function POST(request: NextRequest) {
                 { status: 400 }
             );
         }
-
-        // For now, use a default user ID (in production, get from auth session)
-        const userId = '00000000-0000-0000-0000-000000000000';
 
         // Generate embedding
         const embedding = await generateEmbedding(text);
@@ -70,13 +79,21 @@ export async function POST(request: NextRequest) {
 // GET /api/memories - List memories
 export async function GET(request: NextRequest) {
     try {
+        // Get authenticated user
+        const session = await getServerSession();
+        if (!session) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const userId = session.user.id;
+
         const searchParams = request.nextUrl.searchParams;
         const projectId = searchParams.get('projectId') || undefined;
         const limit = parseInt(searchParams.get('limit') || '50');
         const offset = parseInt(searchParams.get('offset') || '0');
-
-        // For now, use a default user ID (in production, get from auth session)
-        const userId = 'default-user';
 
         const memories = await db.memories.findByUserId(userId, projectId, limit, offset);
 

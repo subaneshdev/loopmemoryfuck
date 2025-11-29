@@ -42,20 +42,12 @@ export default function Home() {
               Powered by semantic search and the Model Context Protocol.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Link
-                href="/dashboard"
-                className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-full hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2"
-              >
-                <Zap className="w-5 h-5" />
+              <a href="/login" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-full hover:shadow-2xl hover:scale-105 transition-all">
                 Start Free
-              </Link>
-              <Link
-                href="/install-mcp"
-                className="px-8 py-4 glass text-gray-800 dark:text-gray-200 text-lg font-semibold rounded-full hover:shadow-xl transition-all flex items-center gap-2"
-              >
-                <Globe className="w-5 h-5" />
+              </a>
+              <a href="/install-mcp" className="px-8 py-4 glass rounded-full text-lg font-semibold hover:shadow-xl transition-all">
                 Install MCP
-              </Link>
+              </a>
             </div>
           </div>
 

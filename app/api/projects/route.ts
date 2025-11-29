@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/supabase';
+import { getServerSession } from '@/lib/supabase-auth';
 import type { CreateProjectRequest, CreateProjectResponse } from '@/types';
 
 // POST /api/projects - Create a new project
 export async function POST(request: NextRequest) {
     try {
+        // Get authenticated user
+        const session = await getServerSession();
+        if (!session) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const userId = session.user.id;
+
         const body: CreateProjectRequest = await request.json();
         const { name, description } = body;
 
