@@ -275,6 +275,33 @@ export async function POST(request: NextRequest) {
         const body = await request.json();
         const { method, params, id } = body;
 
+        // Handle initialize request
+        if (method === 'initialize') {
+            return Response.json({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                    protocolVersion: '2024-11-05',
+                    capabilities: {
+                        tools: {},
+                    },
+                    serverInfo: {
+                        name: 'LoopMemory',
+                        version: '1.0.0',
+                    },
+                },
+            });
+        }
+
+        // Handle initialized notification
+        if (method === 'notifications/initialized') {
+            return Response.json({
+                jsonrpc: '2.0',
+                id,
+                result: {},
+            });
+        }
+
         // Handle tools/list request
         if (method === 'tools/list') {
             return Response.json({
