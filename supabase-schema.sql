@@ -1,7 +1,7 @@
--- LoopMemory Database Schema for Supabase
--- Run this SQL in your Supabase SQL Editor
+-- LoopMemory Database Schema with Auto-User Sync
+-- Run this in Supabase SQL Editor
 
--- Enable UUID extension (if not already enabled)
+-- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- Users table
@@ -53,37 +53,41 @@ CREATE INDEX IF NOT EXISTS idx_memories_project_id ON memories(project_id);
 CREATE INDEX IF NOT EXISTS idx_documents_user_id ON documents(user_id);
 CREATE INDEX IF NOT EXISTS idx_projects_user_id ON projects(user_id);
 
--- Enable Row Level Security (RLS)
+-- Enable Row Level Security
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE memories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
 
--- RLS Policies (Note: These are basic policies. Adjust based on your auth strategy)
--- For now, allowing all operations for testing. In production, implement proper auth.
-
--- Users policies
-CREATE POLICY "Enable read access for all users" ON users FOR SELECT USING (true);
-CREATE POLICY "Enable insert for all users" ON users FOR INSERT WITH CHECK (true);
-
--- Projects policies
+-- RLS Policies (permissive for testing - tighten for production)
+CREATE POLICY "Enable all access for users" ON users FOR ALL USING (true);
 CREATE POLICY "Enable all access for projects" ON projects FOR ALL USING (true);
-
--- Memories policies
 CREATE POLICY "Enable all access for memories" ON memories FOR ALL USING (true);
-
--- Documents policies
 CREATE POLICY "Enable all access for documents" ON documents FOR ALL USING (true);
 
--- Insert a default user for testing
-INSERT INTO users (id, email)
-VALUES ('00000000-0000-0000-0000-000000000000', 'default-user@loopmemory.app')
-ON CONFLICT (email) DO NOTHING;
+-- IMPORTANT: Auto-sync auth.users to public.users
+-- This trigger ensures users created via Supabase Auth are automatically added to public.users
 
--- Success message
-DO $$
+-- Create function to handle new user creation
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
 BEGIN
-  RAISE NOTICE 'LoopMemory database schema created successfully!';
-  RAISE NOTICE 'Default user created with ID: 00000000-0000-0000-0000-000000000000';
-  RAISE NOTICE 'You can now start using the application.';
-END $$;
+  INSERT INTO public.users (id, email, created_at, updated_at)
+  VALUES (NEW.id, NEW.email, NOW(), NOW())
+  ON CONFLICT (id) DO NOTHING;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Create trigger
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW
+  EXECUTE FUNCTION public.handle_new_user();
+
+-- Sync existing auth users to public.users
+INSERT INTO public.users (id, email, created_at, updated_at)
+SELECT id, email, created_at, updated_at
+FROM auth.users
+ON CONFLICT (id) DO NOTHING;
