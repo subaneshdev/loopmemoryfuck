@@ -231,6 +231,9 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
         }
 
         case 'whoAmI': {
+            const authHeader = request.headers.get('Authorization');
+            const cookieHeader = request.headers.get('cookie');
+
             return {
                 content: [
                     {
@@ -238,6 +241,13 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
                         text: JSON.stringify({
                             id: userId,
                             email: userEmail,
+                            debug_auth: {
+                                has_auth_header: !!authHeader,
+                                auth_header_start: authHeader ? authHeader.substring(0, 10) + '...' : null,
+                                has_cookie: !!cookieHeader,
+                                is_default_user: userId === '00000000-0000-0000-0000-000000000000',
+                                timestamp: new Date().toISOString()
+                            }
                         }, null, 2),
                     },
                 ],
