@@ -6,10 +6,11 @@ import { generateEmbedding } from '@/lib/gemini';
 // GET /api/memories/[id] - Get a single memory
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const memory = await db.memories.findById(params.id);
+        const { id } = await params;
+        const memory = await db.memories.findById(id);
 
         return NextResponse.json({
             success: true,
@@ -30,14 +31,15 @@ export async function GET(
 // PUT /api/memories/[id] - Update a memory
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const updates = await request.json();
         const { content, source, metadata } = updates;
 
         // Get existing memory
-        const existingMemory = await db.memories.findById(params.id);
+        const existingMemory = await db.memories.findById(id);
 
         // If content changed, re-generate embedding
         let vectorId = existingMemory.vector_id;
@@ -59,7 +61,7 @@ export async function PUT(
         }
 
         // Update memory in Supabase
-        const memory = await db.memories.update(params.id, {
+        const memory = await db.memories.update(id, {
             content: content || existingMemory.content,
             source: source !== undefined ? source : existingMemory.source,
             metadata: metadata || existingMemory.metadata,
@@ -85,11 +87,13 @@ export async function PUT(
 // DELETE /api/memories/[id] - Delete a memory
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
+
         // Get memory to find vector_id
-        const memory = await db.memories.findById(params.id);
+        const memory = await db.memories.findById(id);
 
         // Delete vector from Pinecone
         if (memory.vector_id) {
@@ -97,7 +101,7 @@ export async function DELETE(
         }
 
         // Delete memory from Supabase
-        await db.memories.delete(params.id);
+        await db.memories.delete(id);
 
         return NextResponse.json({
             success: true,

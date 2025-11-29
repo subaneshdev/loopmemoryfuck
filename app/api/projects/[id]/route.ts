@@ -4,10 +4,11 @@ import { db } from '@/lib/supabase';
 // GET /api/projects/[id] - Get project details
 export async function GET(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const project = await db.projects.findById(params.id);
+        const { id } = await params;
+        const project = await db.projects.findById(id);
 
         return NextResponse.json({
             success: true,
@@ -28,13 +29,14 @@ export async function GET(
 // PUT /api/projects/[id] - Update project
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        const { id } = await params;
         const updates = await request.json();
         const { name, description } = updates;
 
-        const project = await db.projects.update(params.id, {
+        const project = await db.projects.update(id, {
             name,
             description,
         });
@@ -58,10 +60,11 @@ export async function PUT(
 // DELETE /api/projects/[id] - Delete project
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        await db.projects.delete(params.id);
+        const { id } = await params;
+        await db.projects.delete(id);
 
         return NextResponse.json({
             success: true,
