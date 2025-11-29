@@ -102,11 +102,11 @@ async function getAuthenticatedUser(request: NextRequest) {
         }
     }
 
-    // Fallback to session
+    // Fallback to session or specific user ID (Emergency Link)
     const session = await getServerSession();
     return {
-        userId: session?.user?.id || '00000000-0000-0000-0000-000000000000',
-        userEmail: session?.user?.email || 'default@example.com',
+        userId: session?.user?.id || '145b8399-becb-49d8-86c7-1d4c260a4676',
+        userEmail: session?.user?.email || 'subaneshsubanesh@gmail.com',
     };
 }
 
