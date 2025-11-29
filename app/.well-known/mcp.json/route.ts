@@ -8,6 +8,10 @@ export async function GET() {
         name: 'LoopMemory',
         version: '1.0.0',
         description: 'Universal memory layer for AI assistants',
+        oauth: {
+            authorizationUrl: `${baseUrl}/oauth/authorize`,
+            tokenUrl: `${baseUrl}/api/auth/oauth/token`,
+        },
         capabilities: {
             tools: true,
         },
