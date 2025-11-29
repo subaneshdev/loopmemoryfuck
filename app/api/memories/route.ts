@@ -37,15 +37,7 @@ export async function POST(request: NextRequest) {
         // Generate unique vector ID
         const vectorId = generateId();
 
-        // Store vector in Pinecone
-        await vectorStore.upsert(vectorId, embedding, {
-            userId,
-            projectId: projectId || '',
-            memoryId: vectorId,
-            text: text.substring(0, 500), // Store preview in metadata
-        });
-
-        // Store memory metadata in Supabase
+        // Store memory metadata in Supabase first
         const memory = await db.memories.create({
             user_id: userId,
             project_id: projectId,
@@ -56,6 +48,14 @@ export async function POST(request: NextRequest) {
                 tags: tags || [],
             },
             vector_id: vectorId,
+        });
+
+        // Store vector in Pinecone with correct memoryId
+        await vectorStore.upsert(vectorId, embedding, {
+            userId,
+            projectId: projectId || '',
+            memoryId: memory.id, // Use the DB ID
+            text: text.substring(0, 500),
         });
 
         const response: CreateMemoryResponse = {

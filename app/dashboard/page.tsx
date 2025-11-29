@@ -122,7 +122,10 @@ export default function DashboardPage() {
                         {user && (
                             <div className="flex items-center gap-2 px-4 py-2 glass rounded-lg">
                                 <User className="w-4 h-4" />
-                                <span className="text-sm">{user.email}</span>
+                                <div className="flex flex-col items-start">
+                                    <span className="text-sm font-bold">{user.email}</span>
+                                    <span className="text-[10px] opacity-70 font-mono">ID: {user.id}</span>
+                                </div>
                             </div>
                         )}
                         <Link
