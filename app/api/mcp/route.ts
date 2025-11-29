@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '@/lib/supabase-auth';
+import { getServerSession } from '@/lib/supabase-server';
 import { db } from '@/lib/supabase';
 import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';

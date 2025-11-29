@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/supabase';
 import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
-import { getServerSession } from '@/lib/supabase-auth';
+import { getServerSession } from '@/lib/supabase-server';
 
 // GET /api/memories/[id] - Get a single memory
 export async function GET(

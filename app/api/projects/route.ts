@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/supabase';
-import { getServerSession } from '@/lib/supabase-auth';
+import { getServerSession } from '@/lib/supabase-server';
 import type { CreateProjectRequest, CreateProjectResponse } from '@/types';
 
 // POST /api/projects - Create a new project

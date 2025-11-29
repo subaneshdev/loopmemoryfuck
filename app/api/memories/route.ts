@@ -4,7 +4,7 @@ import { vectorStore } from '@/lib/pinecone';
 import { generateEmbedding } from '@/lib/gemini';
 import { generateId } from '@/lib/utils';
 import type { CreateMemoryRequest, CreateMemoryResponse } from '@/types';
-import { getServerSession } from '@/lib/supabase-auth';
+import { getServerSession } from '@/lib/supabase-server';
 
 // POST /api/memories - Create a new memory
 export async function POST(request: NextRequest) {
