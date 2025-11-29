@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { getServerSession } from '@/lib/supabase-server';
 import { extractBearerToken, verifyAccessToken } from '@/lib/oauth';
 import { db } from '@/lib/supabase';
@@ -86,41 +86,203 @@ const TOOLS = [
     },
 ];
 
-// Handle MCP requests
-export async function POST(request: NextRequest) {
-    try {
-        // Try to get user ID from OAuth token first
-        const authHeader = request.headers.get('Authorization');
-        const token = extractBearerToken(authHeader);
-        let userId: string;
-        let userEmail: string = 'unknown';
+// Get authenticated user
+async function getAuthenticatedUser(request: NextRequest) {
+    // Try OAuth token first
+    const authHeader = request.headers.get('Authorization');
+    const token = extractBearerToken(authHeader);
 
-        if (token) {
-            // Validate OAuth token
-            const tokenData = await verifyAccessToken(token);
-            if (tokenData) {
-                userId = tokenData.userId;
-                userEmail = tokenData.email;
-            } else {
-                return NextResponse.json(
-                    { error: 'Invalid or expired token' },
-                    { status: 401 }
-                );
-            }
-        } else {
-            // Fallback to session-based auth (for web dashboard)
-            const session = await getServerSession();
-            userId = session?.user?.id || '00000000-0000-0000-0000-000000000000';
-            userEmail = session?.user?.email || 'default@example.com';
+    if (token) {
+        const tokenData = await verifyAccessToken(token);
+        if (tokenData) {
+            return {
+                userId: tokenData.userId,
+                userEmail: tokenData.email,
+            };
+        }
+    }
+
+    // Fallback to session
+    const session = await getServerSession();
+    return {
+        userId: session?.user?.id || '00000000-0000-0000-0000-000000000000',
+        userEmail: session?.user?.email || 'default@example.com',
+    };
+}
+
+// Handle MCP tool execution
+async function executeTool(name: string, args: any, userId: string, userEmail: string) {
+    switch (name) {
+        case 'addMemory': {
+            const { text, source, projectId, tags, metadata } = args as MCPAddMemoryArgs;
+
+            const embedding = await generateEmbedding(text);
+            const vectorId = generateId();
+
+            await vectorStore.upsert(vectorId, embedding, {
+                userId,
+                projectId: projectId || '',
+                memoryId: vectorId,
+                text: text.substring(0, 500),
+            });
+
+            const memory = await db.memories.create({
+                user_id: userId,
+                project_id: projectId,
+                content: text,
+                source,
+                metadata: { ...metadata, tags: tags || [] },
+                vector_id: vectorId,
+            });
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: `Memory created successfully with ID: ${memory.id}`,
+                    },
+                ],
+            };
         }
 
+        case 'searchMemories': {
+            const { query, projectId, limit = 10, minScore = 0.7 } = args as MCPSearchMemoriesArgs;
+
+            const queryEmbedding = await generateEmbedding(query);
+            const matches = await vectorStore.query(
+                queryEmbedding,
+                { userId, projectId },
+                limit
+            );
+
+            const results = [];
+            for (const match of matches) {
+                if (match.score && match.score >= minScore) {
+                    try {
+                        const memory = await db.memories.findById(match.metadata?.memoryId as string);
+                        results.push({
+                            id: memory.id,
+                            content: memory.content,
+                            source: memory.source,
+                            score: match.score,
+                            createdAt: memory.created_at,
+                        });
+                    } catch (error) {
+                        console.warn(`Memory not found for vector ${match.id}`);
+                    }
+                }
+            }
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(results, null, 2),
+                    },
+                ],
+            };
+        }
+
+        case 'whoAmI': {
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify({
+                            id: userId,
+                            email: userEmail,
+                        }, null, 2),
+                    },
+                ],
+            };
+        }
+
+        case 'getProjects': {
+            const projects = await db.projects.findByUserId(userId);
+
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify(projects, null, 2),
+                    },
+                ],
+            };
+        }
+
+        default:
+            throw new Error(`Unknown tool: ${name}`);
+    }
+}
+
+// GET endpoint for SSE connection
+export async function GET(request: NextRequest) {
+    // Set SSE headers
+    const responseHeaders = {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache, no-transform',
+        'Connection': 'keep-alive',
+        'X-Accel-Buffering': 'no',
+    };
+
+    // Create a readable stream for SSE
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+        async start(controller) {
+            // Send initial connection message
+            const message = {
+                jsonrpc: '2.0',
+                method: 'connected',
+                params: {
+                    serverInfo: {
+                        name: 'LoopMemory',
+                        version: '1.0.0',
+                    },
+                    capabilities: {
+                        tools: true,
+                    },
+                },
+            };
+
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(message)}\n\n`));
+
+            // Keep the connection alive with heartbeat
+            const interval = setInterval(() => {
+                try {
+                    controller.enqueue(encoder.encode(': heartbeat\n\n'));
+                } catch (e) {
+                    clearInterval(interval);
+                }
+            }, 15000); // Every 15 seconds
+
+            // Handle client disconnect
+            request.signal.addEventListener('abort', () => {
+                clearInterval(interval);
+                controller.close();
+            });
+        },
+    });
+
+    return new Response(stream, { headers: responseHeaders });
+}
+
+// POST endpoint for JSON-RPC requests  
+export async function POST(request: NextRequest) {
+    try {
+        const { userId, userEmail } = await getAuthenticatedUser(request);
+
         const body = await request.json();
-        const { method, params } = body;
+        const { method, params, id } = body;
 
         // Handle tools/list request
         if (method === 'tools/list') {
-            return NextResponse.json({
-                tools: TOOLS,
+            return Response.json({
+                jsonrpc: '2.0',
+                id,
+                result: {
+                    tools: TOOLS,
+                },
             });
         }
 
@@ -128,135 +290,50 @@ export async function POST(request: NextRequest) {
         if (method === 'tools/call') {
             const { name, arguments: args } = params;
 
-            switch (name) {
-                case 'addMemory': {
-                    const { text, source, projectId, tags, metadata } = args as MCPAddMemoryArgs;
+            try {
+                const result = await executeTool(name, args, userId, userEmail);
 
-                    // Generate embedding
-                    const embedding = await generateEmbedding(text);
-                    const vectorId = generateId();
-
-                    // Store in Pinecone
-                    await vectorStore.upsert(vectorId, embedding, {
-                        userId,
-                        projectId: projectId || '',
-                        memoryId: vectorId,
-                        text: text.substring(0, 500),
-                    });
-
-                    // Store in Supabase
-                    const memory = await db.memories.create({
-                        user_id: userId,
-                        project_id: projectId,
-                        content: text,
-                        source,
-                        metadata: { ...metadata, tags: tags || [] },
-                        vector_id: vectorId,
-                    });
-
-                    return NextResponse.json({
-                        content: [
-                            {
-                                type: 'text',
-                                text: `Memory created successfully with ID: ${memory.id}`,
-                            },
-                        ],
-                    });
-                }
-
-                case 'searchMemories': {
-                    const { query, projectId, limit = 10, minScore = 0.7 } = args as MCPSearchMemoriesArgs;
-
-                    // Generate query embedding
-                    const queryEmbedding = await generateEmbedding(query);
-
-                    // Search Pinecone
-                    const matches = await vectorStore.query(
-                        queryEmbedding,
-                        { userId, projectId },
-                        limit
-                    );
-
-                    // Fetch full memories
-                    const results = [];
-                    for (const match of matches) {
-                        if (match.score && match.score >= minScore) {
-                            try {
-                                const memory = await db.memories.findById(match.metadata?.memoryId as string);
-                                results.push({
-                                    id: memory.id,
-                                    content: memory.content,
-                                    source: memory.source,
-                                    score: match.score,
-                                    createdAt: memory.created_at,
-                                });
-                            } catch (error) {
-                                console.warn(`Memory not found for vector ${match.id}`);
-                            }
-                        }
-                    }
-
-                    return NextResponse.json({
-                        content: [
-                            {
-                                type: 'text',
-                                text: JSON.stringify(results, null, 2),
-                            },
-                        ],
-                    });
-                }
-
-                case 'whoAmI': {
-                    return NextResponse.json({
-                        content: [
-                            {
-                                type: 'text',
-                                text: JSON.stringify({
-                                    id: userId,
-                                    email: userEmail,
-                                }, null, 2),
-                            },
-                        ],
-                    });
-                }
-
-                case 'getProjects': {
-                    const projects = await db.projects.findByUserId(userId);
-
-                    return NextResponse.json({
-                        content: [
-                            {
-                                type: 'text',
-                                text: JSON.stringify(projects, null, 2),
-                            },
-                        ],
-                    });
-                }
-
-                default:
-                    return NextResponse.json(
-                        { error: `Unknown tool: ${name}` },
-                        { status: 400 }
-                    );
+                return Response.json({
+                    jsonrpc: '2.0',
+                    id,
+                    result,
+                });
+            } catch (error: any) {
+                return Response.json({
+                    jsonrpc: '2.0',
+                    id,
+                    error: {
+                        code: -32000,
+                        message: error.message || 'Tool execution failed',
+                    },
+                }, { status: 500 });
             }
         }
 
-        return NextResponse.json(
-            { error: 'Invalid MCP request' },
-            { status: 400 }
-        );
+        return Response.json({
+            jsonrpc: '2.0',
+            id,
+            error: {
+                code: -32601,
+                message: 'Method not found',
+            },
+        }, { status: 400 });
     } catch (error: any) {
         console.error('MCP error:', error);
-        return NextResponse.json(
-            { error: error.message || 'MCP request failed' },
-            { status: 500 }
-        );
+        return Response.json({
+            jsonrpc: '2.0',
+            id: null,
+            error: {
+                code: -32603,
+                message: error.message || 'Internal error',
+            },
+        }, { status: 500 });
     }
 }
 
 // Handle OPTIONS for CORS
 export async function OPTIONS() {
-    return new NextResponse(null, {
+    return new Response(null, {
         status: 200,
         headers: {
             'Access-Control-Allow-Origin': '*',

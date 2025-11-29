@@ -1,0 +1,19 @@
+{
+    "name": "loopmemory-mcp-proxy",
+    "version": "1.0.0",
+    "description": "Local MCP proxy for LoopMemory",
+    "main": "mcp-proxy.js",
+    "bin": {
+        "loopmemory-mcp": "./mcp-proxy.js"
+    },
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [
+        "mcp",
+        "loopmemory",
+        "memory"
+    ],
+    "author": "",
+    "license": "MIT"
+}
