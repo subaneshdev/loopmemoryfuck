@@ -111,7 +111,7 @@ async function getAuthenticatedUser(request: NextRequest) {
 }
 
 // Handle MCP tool execution
-async function executeTool(name: string, args: any, userId: string, userEmail: string) {
+async function executeTool(name: string, args: any, userId: string, userEmail: string, request: NextRequest) {
     switch (name) {
         case 'addMemory': {
             const { text, source, projectId, tags, metadata } = args as MCPAddMemoryArgs;
@@ -375,7 +375,7 @@ export async function POST(request: NextRequest) {
             const { name, arguments: args } = params;
 
             try {
-                const result = await executeTool(name, args, userId, userEmail);
+                const result = await executeTool(name, args, userId, userEmail, request);
 
                 return Response.json({
                     jsonrpc: '2.0',
