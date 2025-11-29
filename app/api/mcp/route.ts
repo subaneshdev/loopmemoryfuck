@@ -148,7 +148,9 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
         }
 
         case 'searchMemories': {
-            const { query, projectId, limit = 10, minScore = 0.7 } = args as MCPSearchMemoriesArgs;
+            const { query, projectId, limit = 10, minScore = 0.5 } = args as MCPSearchMemoriesArgs;
+
+            console.log(`[Search] Query: "${query}" | User: ${userId} | Project: ${projectId || 'all'}`);
 
             const queryEmbedding = await generateEmbedding(query);
             const matches = await vectorStore.query(
@@ -157,11 +159,21 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
                 limit
             );
 
+            console.log(`[Search] Pinecone found ${matches.length} matches`);
+
             const results = [];
             for (const match of matches) {
+                console.log(`[Search] Match: ${match.id} | Score: ${match.score} | MemoryID: ${match.metadata?.memoryId}`);
+
                 if (match.score && match.score >= minScore) {
                     try {
-                        const memory = await db.memories.findById(match.metadata?.memoryId as string);
+                        const memoryId = match.metadata?.memoryId as string;
+                        if (!memoryId) {
+                            console.warn(`[Search] Missing memoryId in metadata for match ${match.id}`);
+                            continue;
+                        }
+
+                        const memory = await db.memories.findById(memoryId);
                         results.push({
                             id: memory.id,
                             content: memory.content,
@@ -170,10 +182,12 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
                             createdAt: memory.created_at,
                         });
                     } catch (error) {
-                        console.warn(`Memory not found for vector ${match.id}`);
+                        console.warn(`[Search] Memory lookup failed for ID ${match.metadata?.memoryId}:`, error);
                     }
                 }
             }
+
+            console.log(`[Search] Returning ${results.length} results`);
 
             return {
                 content: [
