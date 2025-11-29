@@ -28,9 +28,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // For now, use a default user ID (in production, get from auth session)
-        const userId = '00000000-0000-0000-0000-000000000000';
-
         const project = await db.projects.create({
             user_id: userId,
             name,
@@ -58,8 +55,16 @@ export async function POST(request: NextRequest) {
 // GET /api/projects - List all projects
 export async function GET(request: NextRequest) {
     try {
-        // For now, use a default user ID (in production, get from auth session)
-        const userId = 'default-user';
+        // Get authenticated user
+        const session = await getServerSession();
+        if (!session) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
+        const userId = session.user.id;
 
         const projects = await db.projects.findByUserId(userId);
 
