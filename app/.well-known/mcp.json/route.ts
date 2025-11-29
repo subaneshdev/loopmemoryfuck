@@ -11,6 +11,7 @@ export async function GET() {
         oauth: {
             authorizationUrl: `${baseUrl}/oauth/authorize`,
             tokenUrl: `${baseUrl}/api/auth/oauth/token`,
+            scopes: [],
         },
         capabilities: {
             tools: true,

@@ -11,10 +11,10 @@ export default function InstallMCPPage() {
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://loopmemory.vercel.app';
 
     const installCommands: Record<string, string> = {
-        claude: `npx -y install-mcp@latest ${appUrl}/api/mcp --client claude`,
-        vscode: `npx -y install-mcp@latest ${appUrl}/api/mcp --client vscode`,
-        cursor: `npx -y install-mcp@latest ${appUrl}/api/mcp --client cursor`,
-        cline: `npx -y install-mcp@latest ${appUrl}/api/mcp --client cline`,
+        claude: `npx -y install-mcp@latest ${appUrl}/api/mcp --client claude --oauth=yes`,
+        vscode: `npx -y install-mcp@latest ${appUrl}/api/mcp --client vscode --oauth=yes`,
+        cursor: `npx -y install-mcp@latest ${appUrl}/api/mcp --client cursor --oauth=yes`,
+        cline: `npx -y install-mcp@latest ${appUrl}/api/mcp --client cline --oauth=yes`,
     };
 
     const handleCopy = () => {
