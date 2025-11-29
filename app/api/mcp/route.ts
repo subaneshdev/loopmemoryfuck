@@ -148,7 +148,7 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
         }
 
         case 'searchMemories': {
-            const { query, projectId, limit = 10, minScore = 0.5 } = args as MCPSearchMemoriesArgs;
+            const { query, projectId, limit = 10, minScore = 0.0 } = args as MCPSearchMemoriesArgs;
 
             console.log(`[Search] Query: "${query}" | User: ${userId} | Project: ${projectId || 'all'}`);
 
@@ -188,6 +188,27 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
             }
 
             console.log(`[Search] Returning ${results.length} results`);
+
+            if (results.length === 0) {
+                return {
+                    content: [
+                        {
+                            type: 'text',
+                            text: JSON.stringify({
+                                message: "No memories found matching your query.",
+                                debug_info: {
+                                    query,
+                                    userId,
+                                    projectId: projectId || null,
+                                    pinecone_matches: matches.length,
+                                    top_match_score: matches.length > 0 ? matches[0].score : 0,
+                                    top_match_memory_id: matches.length > 0 ? matches[0].metadata?.memoryId : null
+                                }
+                            }, null, 2),
+                        },
+                    ],
+                };
+            }
 
             return {
                 content: [
