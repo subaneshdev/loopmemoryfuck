@@ -44,7 +44,6 @@ export default function OAuthAuthorizePage() {
                     redirect_uri: redirectUri,
                 }),
             });
-
             const data = await response.json();
 
             if (data.success && data.code) {
