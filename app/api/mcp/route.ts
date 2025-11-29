@@ -119,13 +119,7 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
             const embedding = await generateEmbedding(text);
             const vectorId = generateId();
 
-            await vectorStore.upsert(vectorId, embedding, {
-                userId,
-                projectId: projectId || '',
-                memoryId: vectorId,
-                text: text.substring(0, 500),
-            });
-
+            // 1. Create memory in Supabase first to get the UUID
             const memory = await db.memories.create({
                 user_id: userId,
                 project_id: projectId,
@@ -133,6 +127,14 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
                 source,
                 metadata: { ...metadata, tags: tags || [] },
                 vector_id: vectorId,
+            });
+
+            // 2. Upsert to Pinecone with the correct Supabase memoryId
+            await vectorStore.upsert(vectorId, embedding, {
+                userId,
+                projectId: projectId || '',
+                memoryId: memory.id, // Store the REAL Supabase UUID
+                text: text.substring(0, 500),
             });
 
             return {
