@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Brain, Loader2, Check } from 'lucide-react';
 import { signIn } from '@/lib/supabase-auth';
 
-export default function OAuthAuthorizePage() {
+function OAuthAuthorizeContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const redirectUri = searchParams.get('redirect_uri');
@@ -165,5 +166,17 @@ export default function OAuthAuthorizePage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function OAuthAuthorizePage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+            </div>
+        }>
+            <OAuthAuthorizeContent />
+        </Suspense>
     );
 }
