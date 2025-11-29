@@ -214,7 +214,17 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
                 content: [
                     {
                         type: 'text',
-                        text: JSON.stringify(results, null, 2),
+                        text: JSON.stringify({
+                            results,
+                            debug_info: {
+                                query,
+                                userId,
+                                projectId: projectId || null,
+                                pinecone_matches: matches.length,
+                                top_match_score: matches.length > 0 ? matches[0].score : 0,
+                                top_match_memory_id: matches.length > 0 ? matches[0].metadata?.memoryId : null
+                            }
+                        }, null, 2),
                     },
                 ],
             };
