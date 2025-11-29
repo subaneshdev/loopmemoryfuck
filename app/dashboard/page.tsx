@@ -1,31 +1,42 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain, Plus, Search as SearchIcon, Loader2 } from 'lucide-react';
+import { Brain, Plus, Search as SearchIcon, Loader2, LogOut, User } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/app/providers/auth-provider';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+    const { user, loading: authLoading, signOut } = useAuth();
+    const router = useRouter();
     const [memories, setMemories] = useState<any[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [showAddForm, setShowAddForm] = useState(false);
     const [newMemory, setNewMemory] = useState({ text: '', source: '' });
+    const [error, setError] = useState('');
 
     // Fetch recent memories
     useEffect(() => {
-        fetchMemories();
-    }, []);
+        if (user && !authLoading) {
+            fetchMemories();
+        }
+    }, [user, authLoading]);
 
     const fetchMemories = async () => {
         setLoading(true);
+        setError('');
         try {
             const res = await fetch('/api/memories?limit=20');
             const data = await res.json();
             if (data.success) {
                 setMemories(data.memories || []);
+            } else {
+                setError(data.error || 'Failed to fetch memories');
             }
         } catch (error) {
             console.error('Failed to fetch memories:', error);
+            setError('Failed to fetch memories');
         } finally {
             setLoading(false);
         }
@@ -38,6 +49,7 @@ export default function DashboardPage() {
         }
 
         setLoading(true);
+        setError('');
         try {
             const res = await fetch('/api/memories/search', {
                 method: 'POST',
@@ -47,9 +59,12 @@ export default function DashboardPage() {
             const data = await res.json();
             if (data.success) {
                 setMemories(data.results.map((r: any) => r.memory) || []);
+            } else {
+                setError(data.error || 'Search failed');
             }
         } catch (error) {
             console.error('Search failed:', error);
+            setError('Search failed');
         } finally {
             setLoading(false);
         }
@@ -58,6 +73,7 @@ export default function DashboardPage() {
     const handleAddMemory = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
+        setError('');
         try {
             const res = await fetch('/api/memories', {
                 method: 'POST',
@@ -69,13 +85,29 @@ export default function DashboardPage() {
                 setNewMemory({ text: '', source: '' });
                 setShowAddForm(false);
                 fetchMemories();
+            } else {
+                setError(data.error || 'Failed to add memory');
             }
         } catch (error) {
             console.error('Failed to add memory:', error);
+            setError('Failed to add memory');
         } finally {
             setLoading(false);
         }
     };
+
+    const handleSignOut = async () => {
+        await signOut();
+        router.push('/login');
+    };
+
+    if (authLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-12 h-12 animate-spin text-blue-600" />
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-blue-950 dark:to-purple-950">
@@ -86,12 +118,27 @@ export default function DashboardPage() {
                         <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                         <span className="text-2xl font-bold gradient-text">LoopMemory</span>
                     </Link>
-                    <Link
-                        href="/install-mcp"
-                        className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition-colors"
-                    >
-                        Install MCP
-                    </Link>
+                    <div className="flex items-center gap-4">
+                        {user && (
+                            <div className="flex items-center gap-2 px-4 py-2 glass rounded-lg">
+                                <User className="w-4 h-4" />
+                                <span className="text-sm">{user.email}</span>
+                            </div>
+                        )}
+                        <Link
+                            href="/install-mcp"
+                            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition-colors"
+                        >
+                            Install MCP
+                        </Link>
+                        <button
+                            onClick={handleSignOut}
+                            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 transition-colors flex items-center gap-2"
+                        >
+                            <LogOut className="w-4 h-4" />
+                            Sign Out
+                        </button>
+                    </div>
                 </div>
             </nav>
 
@@ -133,6 +180,13 @@ export default function DashboardPage() {
                         </button>
                     </div>
                 </div>
+
+                {/* Error Display */}
+                {error && (
+                    <div className="glass rounded-2xl p-4 mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
+                        <p className="text-red-700 dark:text-red-400">{error}</p>
+                    </div>
+                )}
 
                 {/* Add Memory Form */}
                 {showAddForm && (
