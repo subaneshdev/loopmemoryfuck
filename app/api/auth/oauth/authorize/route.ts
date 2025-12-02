@@ -1,25 +1,43 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateAuthCode, storeAuthCode } from '@/lib/oauth';
+import { getServerSession } from '@/lib/supabase-server';
+import { createClient } from '@supabase/supabase-js';
 
 // POST /api/auth/oauth/authorize - Generate authorization code
 export async function POST(request: NextRequest) {
     try {
+        // Get authenticated user session
+        const session = await getServerSession();
+        if (!session || !session.user) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 401 }
+            );
+        }
+
         const body = await request.json();
-        const { user_id, email, redirect_uri } = body;
+        const { redirect_uri } = body;
 
         // Validate inputs
-        if (!user_id || !email || !redirect_uri) {
+        if (!redirect_uri) {
             return NextResponse.json(
-                { success: false, error: 'Missing required parameters' },
+                { success: false, error: 'Missing redirect_uri' },
                 { status: 400 }
             );
         }
 
+        // Create authenticated Supabase client to insert code
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+        const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+            global: { headers: { Authorization: `Bearer ${session.access_token}` } }
+        });
+
         // Generate authorization code
         const code = generateAuthCode();
 
-        // Store code with user info
-        storeAuthCode(code, user_id, email, redirect_uri);
+        // Store code with user info in DB
+        await storeAuthCode(supabase, code, session.user.id, session.user.email!, redirect_uri);
 
         return NextResponse.json({
             success: true,

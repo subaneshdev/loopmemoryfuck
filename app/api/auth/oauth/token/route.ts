@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Validate and consume authorization code
-        const authData = validateAuthCode(code, redirect_uri);
+        const authData = await validateAuthCode(code, redirect_uri);
 
         if (!authData) {
             return NextResponse.json(

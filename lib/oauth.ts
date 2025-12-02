@@ -1,4 +1,6 @@
 import { SignJWT, jwtVerify } from 'jose';
+import { SupabaseClient } from '@supabase/supabase-js';
+import { supabase as anonClient } from '@/lib/supabase';
 
 // Secret for signing JWTs - in production, use env variable
 const JWT_SECRET = new TextEncoder().encode(
@@ -7,62 +9,51 @@ const JWT_SECRET = new TextEncoder().encode(
 
 const ALGORITHM = 'HS256';
 
-// Authorization code storage (in-memory for now, use Redis in production)
-const authCodes = new Map<string, {
-    userId: string;
-    email: string;
-    expiresAt: number;
-    redirectUri: string;
-}>();
-
 // Generate a random authorization code
 export function generateAuthCode(): string {
     return `auth_${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`;
 }
 
-// Store authorization code
-export function storeAuthCode(
+// Store authorization code in Supabase
+export async function storeAuthCode(
+    supabase: SupabaseClient,
     code: string,
     userId: string,
     email: string,
     redirectUri: string
-): void {
-    authCodes.set(code, {
-        userId,
+): Promise<void> {
+    const { error } = await supabase.from('oauth_codes').insert({
+        code,
+        user_id: userId,
         email,
-        expiresAt: Date.now() + 10 * 60 * 1000, // 10 minutes
-        redirectUri,
+        redirect_uri: redirectUri,
+        expires_at: new Date(Date.now() + 10 * 60 * 1000).toISOString(), // 10 minutes
     });
+
+    if (error) throw error;
 }
 
-// Validate and consume authorization code
-export function validateAuthCode(code: string, redirectUri: string): {
+// Validate and consume authorization code using Supabase RPC
+export async function validateAuthCode(code: string, redirectUri: string): Promise<{
     userId: string;
     email: string;
-} | null {
-    const authCode = authCodes.get(code);
+} | null> {
+    // Use the anon client to call the security definer function
+    const { data, error } = await anonClient.rpc('verify_oauth_code', {
+        input_code: code,
+        input_redirect_uri: redirectUri
+    });
 
-    if (!authCode) {
+    if (error) {
+        console.error('Error verifying auth code:', error);
         return null;
     }
 
-    // Check expiration
-    if (Date.now() > authCode.expiresAt) {
-        authCodes.delete(code);
-        return null;
-    }
-
-    // Check redirect URI matches
-    if (authCode.redirectUri !== redirectUri) {
-        return null;
-    }
-
-    // Consume the code (one-time use)
-    authCodes.delete(code);
+    if (!data) return null;
 
     return {
-        userId: authCode.userId,
-        email: authCode.email,
+        userId: data.userId,
+        email: data.email,
     };
 }
 
@@ -101,31 +92,9 @@ export async function verifyAccessToken(token: string): Promise<{
     }
 }
 
-// Extract token from Authorization header
 export function extractBearerToken(authHeader: string | null): string | null {
-    if (!authHeader) {
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return null;
     }
-
-    const parts = authHeader.split(' ');
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-        return null;
-    }
-
-    return parts[1];
-}
-
-// Clean up expired auth codes (run periodically)
-export function cleanupExpiredCodes(): void {
-    const now = Date.now();
-    for (const [code, data] of authCodes.entries()) {
-        if (now > data.expiresAt) {
-            authCodes.delete(code);
-        }
-    }
-}
-
-// Run cleanup every 5 minutes
-if (typeof setInterval !== 'undefined') {
-    setInterval(cleanupExpiredCodes, 5 * 60 * 1000);
+    return authHeader.substring(7);
 }
