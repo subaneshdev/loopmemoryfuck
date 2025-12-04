@@ -35,9 +35,10 @@ export async function storeAuthCode(
 
 // Validate and consume authorization code using Supabase RPC
 export async function validateAuthCode(code: string, redirectUri: string): Promise<{
-    userId: string;
-    email: string;
-} | null> {
+    userId?: string;
+    email?: string;
+    error?: string;
+}> {
     // Use the anon client to call the security definer function
     const { data, error } = await anonClient.rpc('verify_oauth_code', {
         input_code: code,
@@ -46,10 +47,12 @@ export async function validateAuthCode(code: string, redirectUri: string): Promi
 
     if (error) {
         console.error('Error verifying auth code:', error);
-        return null;
+        return { error: `Database error: ${error.message}` };
     }
 
-    if (!data) return null;
+    if (!data) {
+        return { error: 'Invalid code or redirect URI mismatch' };
+    }
 
     return {
         userId: data.userId,

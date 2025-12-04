@@ -26,9 +26,12 @@ export async function POST(request: NextRequest) {
         // Validate and consume authorization code
         const authData = await validateAuthCode(code, redirect_uri);
 
-        if (!authData) {
+        if (authData.error || !authData.userId || !authData.email) {
             return NextResponse.json(
-                { error: 'invalid_grant', error_description: 'Invalid or expired authorization code' },
+                {
+                    error: 'invalid_grant',
+                    error_description: authData.error || 'Invalid or expired authorization code'
+                },
                 { status: 400 }
             );
         }
