@@ -6,11 +6,11 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
     try {
         // Try to select from the table
-        // If table doesn't exist, this will throw an error
-        const { data, error } = await anonClient
+        const { data: codes, error } = await anonClient
             .from('oauth_codes')
-            .select('count')
-            .limit(1);
+            .select('created_at, redirect_uri')
+            .order('created_at', { ascending: false })
+            .limit(5);
 
         if (error) {
             return NextResponse.json({
@@ -20,6 +20,17 @@ export async function GET() {
                 hint: 'If message says "relation does not exist", you MUST run the SQL migration.'
             }, { status: 500 });
         }
+
+        return NextResponse.json({
+            status: 'success',
+            message: 'OAuth table is accessible.',
+            stats: {
+                total_codes_found: codes.length,
+                last_code_created_at: codes.length > 0 ? codes[0].created_at : 'never',
+                last_code_redirect_uri: codes.length > 0 ? codes[0].redirect_uri : null
+            },
+            function_check: 'Pending check...'
+        });
 
         // Also check if the RPC function exists
         const { error: rpcError } = await anonClient.rpc('verify_oauth_code', {
