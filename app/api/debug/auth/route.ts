@@ -41,7 +41,7 @@ export async function GET() {
         // The RPC might return null (success but no code found) or error (function not found)
         // If function missing: "function verify_oauth_code(text, text) does not exist"
 
-        if (rpcError && rpcError.message.includes('does not exist')) {
+        if (rpcError?.message?.includes('does not exist')) {
             return NextResponse.json({
                 status: 'error',
                 message: 'RPC function missing',
