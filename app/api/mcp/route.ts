@@ -104,10 +104,14 @@ async function getAuthenticatedUser(request: NextRequest) {
 
     // Fallback to session
     const session = await getServerSession();
-    return {
-        userId: session?.user?.id || '00000000-0000-0000-0000-000000000000',
-        userEmail: session?.user?.email || 'default@example.com',
-    };
+    if (session?.user) {
+        return {
+            userId: session.user.id,
+            userEmail: session.user.email || '',
+        };
+    }
+
+    return { userId: '', userEmail: '' };
 }
 
 // Handle MCP tool execution
@@ -328,6 +332,17 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
     try {
         const { userId, userEmail } = await getAuthenticatedUser(request);
+
+        if (!userId) {
+            return Response.json({
+                jsonrpc: '2.0',
+                id: null,
+                error: {
+                    code: -32001,
+                    message: 'Unauthorized: Please authenticate using the client.',
+                },
+            }, { status: 401 });
+        }
 
         const body = await request.json();
         const { method, params, id } = body;
