@@ -230,22 +230,23 @@ export default function DashboardPage() {
 
                 {/* Memories Grid */}
 
-                {memories.map((memory) => (
-                    <div key={memory.id} className="glass rounded-2xl p-6 hover:shadow-xl transition-all group">
-                        <p className="text-gray-800 dark:text-gray-200 mb-4 line-clamp-4">
-                            {memory.content}
-                        </p>
-                        {memory.source && (
-                            <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm mb-2">
-                                {memory.source}
-                            </span>
-                        )}
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {new Date(memory.created_at).toLocaleDateString()}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {memories.map((memory) => (
+                        <div key={memory.id} className="glass rounded-2xl p-6 hover:shadow-xl transition-all group">
+                            <p className="text-gray-800 dark:text-gray-200 mb-4 line-clamp-4">
+                                {memory.content}
+                            </p>
+                            {memory.source && (
+                                <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm mb-2">
+                                    {memory.source}
+                                </span>
+                            )}
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
+                                {new Date(memory.created_at).toLocaleDateString()}
+                            </div>
                         </div>
-                    </div>
-                ))}
-        </div>
+                    ))}
+                </div>
             </main >
         </div >
     );
