@@ -109,168 +109,144 @@ export default function DashboardPage() {
         );
     }
 
+    const handleGenerateToken = async () => {
+        try {
+            const res = await fetch('/api/auth/token/generate', { method: 'POST' });
+            const data = await res.json();
+            if (data.success) {
+                // Copy to clipboard
+                await navigator.clipboard.writeText(data.token);
+                alert('Token copied to clipboard! Use it with --header "Authorization: Bearer <TOKEN>"');
+            } else {
+                alert('Failed to generate token: ' + data.error);
+            }
+        } catch (e) {
+            alert('Error generating token');
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-blue-950 dark:to-purple-950">
-            {/* Navigation */}
-            <nav className="glass border-b border-white/10">
-                <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-                    <Link href="/" className="flex items-center gap-2">
+            {/* Header */}
+            <header className="glass sticky top-0 z-50 border-b border-gray-200/50 dark:border-gray-800/50">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
                         <Brain className="w-8 h-8 text-blue-600 dark:text-blue-400" />
-                        <span className="text-2xl font-bold gradient-text">LoopMemory</span>
-                    </Link>
+                        <span className="text-xl font-bold gradient-text">LoopMemory</span>
+                    </div>
+
                     <div className="flex items-center gap-4">
-                        {user && (
-                            <div className="flex items-center gap-2 px-4 py-2 glass rounded-lg">
-                                <User className="w-4 h-4" />
-                                <div className="flex flex-col items-start">
-                                    <span className="text-sm font-bold">{user.email}</span>
-                                    <span className="text-[10px] opacity-70 font-mono">ID: {user.id}</span>
-                                </div>
-                            </div>
-                        )}
-                        <Link
-                            href="/install-mcp"
-                            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 transition-colors"
-                        >
-                            Install MCP
-                        </Link>
                         <button
-                            onClick={handleSignOut}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-red-600 transition-colors flex items-center gap-2"
+                            onClick={handleGenerateToken}
+                            className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                         >
-                            <LogOut className="w-4 h-4" />
-                            Sign Out
+                            Generate CLI Token
                         </button>
+                        <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-800">
+                            <div className="text-right hidden sm:block">
+                                <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                                    {user?.email}
+                                </p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    ID: {user?.id}
+                                </p>
+                            </div>
+                            <button
+                                onClick={() => signOut()}
+                                className="p-2 text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400 transition-colors"
+                                title="Sign Out"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </nav>
+            </header>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-6 py-12">
-                {/* Header */}
-                <div className="mb-8">
-                    <h1 className="text-4xl font-bold mb-2 gradient-text">Your Memories</h1>
-                    <p className="text-gray-600 dark:text-gray-400">Store and search your memories with AI-powered semantic search</p>
-                </div>
-
-                {/* Search Bar */}
-                <div className="glass rounded-2xl p-6 mb-8">
-                    <div className="flex gap-4">
-                        <div className="flex-1 relative">
-                            <SearchIcon className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                            <input
-                                type="text"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-                                placeholder="Search memories semantically..."
-                                className="w-full pl-12 pr-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                        </div>
-                        <button
-                            onClick={handleSearch}
-                            disabled={loading}
-                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-50"
-                        >
-                            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Search'}
-                        </button>
-                        <button
-                            onClick={() => setShowAddForm(true)}
-                            className="px-6 py-3 glass rounded-xl font-medium hover:shadow-lg transition-all flex items-center gap-2"
-                        >
-                            <Plus className="w-5 h-5" />
-                            Add Memory
-                        </button>
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Search & Add */}
+                <div className="flex flex-col sm:flex-row gap-4 mb-8">
+                    <div className="relative flex-1">
+                        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                        <input
+                            type="text"
+                            placeholder="Search memories semantically..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+                            className="w-full pl-10 pr-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all"
+                        />
                     </div>
+                    <button
+                        onClick={handleSearch}
+                        disabled={loading}
+                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                    >
+                        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Search'}
+                    </button>
+                    <button
+                        onClick={() => setShowAddForm(!showAddForm)}
+                        className="px-6 py-3 bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-medium rounded-xl hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                    >
+                        <Plus className="w-5 h-5" />
+                        Add Memory
+                    </button>
                 </div>
-
-                {/* Error Display */}
-                {error && (
-                    <div className="glass rounded-2xl p-4 mb-8 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800">
-                        <p className="text-red-700 dark:text-red-400">{error}</p>
-                    </div>
-                )}
 
                 {/* Add Memory Form */}
                 {showAddForm && (
-                    <div className="glass rounded-2xl p-6 mb-8">
-                        <h2 className="text-2xl font-bold mb-4">Add New Memory</h2>
-                        <form onSubmit={handleAddMemory} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Memory Content *</label>
-                                <textarea
-                                    value={newMemory.text}
-                                    onChange={(e) => setNewMemory({ ...newMemory, text: e.target.value })}
-                                    required
-                                    rows={4}
-                                    className="w-full px-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="Enter your memory here..."
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium mb-2">Source (optional)</label>
-                                <input
-                                    type="text"
-                                    value={newMemory.source}
-                                    onChange={(e) => setNewMemory({ ...newMemory, source: e.target.value })}
-                                    className="w-full px-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    placeholder="e.g., Meeting notes, Article, etc."
-                                />
-                            </div>
-                            <div className="flex gap-4">
-                                <button
-                                    type="submit"
-                                    disabled={loading}
-                                    className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-50"
-                                >
-                                    {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Memory'}
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setShowAddForm(false)}
-                                    className="px-6 py-3 glass rounded-xl font-medium hover:shadow-lg transition-all"
-                                >
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
+                    <div className="mb-8 glass rounded-2xl p-6 animate-in fade-in slide-in-from-top-4">
+                        <textarea
+                            placeholder="What would you like to remember?"
+                            value={newMemory.text}
+                            onChange={(e) => setNewMemory({ ...newMemory, text: e.target.value })}
+                            className="w-full p-4 bg-white/50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none min-h-[100px] mb-4"
+                        />
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowAddForm(false)}
+                                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleAddMemory}
+                                disabled={loading || !newMemory.text.trim()}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50"
+                            >
+                                Save Memory
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* Error Message */}
+                {error && (
+                    <div className="mb-8 p-4 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-xl border border-red-200 dark:border-red-800">
+                        {error}
                     </div>
                 )}
 
                 {/* Memories Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {memories.length === 0 && !loading && (
-                        <div className="col-span-full text-center py-20">
-                            <Brain className="w-16 h-16 mx-auto mb-4 text-gray-400" />
-                            <p className="text-gray-600 dark:text-gray-400 text-lg">
-                                {searchQuery ? 'No memories found' : 'No memories yet. Add your first memory!'}
-                            </p>
-                        </div>
-                    )}
 
-                    {loading && (
-                        <div className="col-span-full text-center py-20">
-                            <Loader2 className="w-12 h-12 animate-spin mx-auto text-blue-600" />
+                {memories.map((memory) => (
+                    <div key={memory.id} className="glass rounded-2xl p-6 hover:shadow-xl transition-all group">
+                        <p className="text-gray-800 dark:text-gray-200 mb-4 line-clamp-4">
+                            {memory.content}
+                        </p>
+                        {memory.source && (
+                            <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm mb-2">
+                                {memory.source}
+                            </span>
+                        )}
+                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                            {new Date(memory.created_at).toLocaleDateString()}
                         </div>
-                    )}
-
-                    {memories.map((memory) => (
-                        <div key={memory.id} className="glass rounded-2xl p-6 hover:shadow-xl transition-all group">
-                            <p className="text-gray-800 dark:text-gray-200 mb-4 line-clamp-4">
-                                {memory.content}
-                            </p>
-                            {memory.source && (
-                                <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full text-sm mb-2">
-                                    {memory.source}
-                                </span>
-                            )}
-                            <div className="text-sm text-gray-500 dark:text-gray-400">
-                                {new Date(memory.created_at).toLocaleDateString()}
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </main>
+                    </div>
+                ))}
         </div>
+            </main >
+        </div >
     );
 }
