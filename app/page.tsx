@@ -12,12 +12,7 @@ export default function Home() {
             <span className="text-2xl font-bold gradient-text">LoopMemory</span>
           </div>
           <div className="flex items-center gap-4">
-            <Link
-              href="/install-mcp"
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              Install MCP
-            </Link>
+
             <Link
               href="/dashboard"
               className="px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full font-medium hover:shadow-lg hover:scale-105 transition-all"
@@ -45,9 +40,7 @@ export default function Home() {
               <a href="/login" className="px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-lg font-semibold rounded-full hover:shadow-2xl hover:scale-105 transition-all">
                 Start Free
               </a>
-              <a href="/install-mcp" className="px-8 py-4 glass rounded-full text-lg font-semibold hover:shadow-xl transition-all">
-                Install MCP
-              </a>
+
             </div>
           </div>
 

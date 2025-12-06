@@ -109,21 +109,7 @@ export default function DashboardPage() {
         );
     }
 
-    const handleGenerateToken = async () => {
-        try {
-            const res = await fetch('/api/auth/token/generate', { method: 'POST' });
-            const data = await res.json();
-            if (data.success) {
-                // Copy to clipboard
-                await navigator.clipboard.writeText(data.token);
-                alert('Token copied to clipboard! Use it with --header "Authorization: Bearer <TOKEN>"');
-            } else {
-                alert('Failed to generate token: ' + data.error);
-            }
-        } catch (e) {
-            alert('Error generating token');
-        }
-    };
+
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 dark:from-gray-950 dark:via-blue-950 dark:to-purple-950">
@@ -136,12 +122,12 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-4">
-                        <button
-                            onClick={handleGenerateToken}
+                        <Link
+                            href="/install-mcp"
                             className="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:text-blue-400 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded-lg transition-colors"
                         >
-                            Generate CLI Token
-                        </button>
+                            Install MCP
+                        </Link>
                         <div className="flex items-center gap-3 pl-4 border-l border-gray-200 dark:border-gray-800">
                             <div className="text-right hidden sm:block">
                                 <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
