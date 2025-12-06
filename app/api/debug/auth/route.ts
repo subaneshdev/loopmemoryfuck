@@ -23,6 +23,7 @@ export async function GET() {
 
         return NextResponse.json({
             status: 'success',
+            version: 'v2-no-guest',
             message: 'OAuth table is accessible.',
             stats: {
                 total_codes_found: codes.length,
