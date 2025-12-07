@@ -2,15 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from '@/lib/supabase-server';
 
-// Initialize Supabase client with service role key for admin operations
-// We need this to delete from the vector store (Pinecone) if we were syncing there,
-// but for now we just delete from Supabase.
-// Actually, we should use the authenticated client from the session if possible,
-// but RLS might be tricky. Let's use the service role key but strictly check ownership.
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+// Helper to get admin client lazily
+const getSupabaseAdmin = () => {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!url || !key) {
+        throw new Error('Missing Supabase credentials');
+    }
+
+    return createClient(url, key);
+};
 
 export async function DELETE(
     request: NextRequest,
@@ -26,6 +28,9 @@ export async function DELETE(
         }
 
         const { id } = await params;
+
+        // Initialize admin client lazily to avoid build-time errors
+        const supabaseAdmin = getSupabaseAdmin();
 
         // Verify ownership before deleting
         const { data: memory, error: fetchError } = await supabaseAdmin
