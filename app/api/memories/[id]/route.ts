@@ -1,18 +1,24 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/supabase';
-import { vectorStore } from '@/lib/pinecone';
-import { generateEmbedding } from '@/lib/gemini';
+import { createClient } from '@supabase/supabase-js';
 import { getServerSession } from '@/lib/supabase-server';
 
-// GET /api/memories/[id] - Get a single memory
-export async function GET(
+// Initialize Supabase client with service role key for admin operations
+// We need this to delete from the vector store (Pinecone) if we were syncing there,
+// but for now we just delete from Supabase.
+// Actually, we should use the authenticated client from the session if possible,
+// but RLS might be tricky. Let's use the service role key but strictly check ownership.
+const supabaseAdmin = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+export async function DELETE(
     request: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        // Get authenticated user
         const session = await getServerSession();
-        if (!session) {
+        if (!session || !session.user) {
             return NextResponse.json(
                 { success: false, error: 'Unauthorized' },
                 { status: 401 }
@@ -20,110 +26,43 @@ export async function GET(
         }
 
         const { id } = await params;
-        const memory = await db.memories.findById(id);
 
-        return NextResponse.json({
-            success: true,
-            memory,
-        });
-    } catch (error: any) {
-        console.error('Get memory error:', error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: error.message || 'Memory not found',
-            },
-            { status: 404 }
-        );
-    }
-}
+        // Verify ownership before deleting
+        const { data: memory, error: fetchError } = await supabaseAdmin
+            .from('memories')
+            .select('user_id')
+            .eq('id', id)
+            .single();
 
-// PUT /api/memories/[id] - Update a memory
-export async function PUT(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    try {
-        const { id } = await params;
-        const updates = await request.json();
-        const { content, source, metadata } = updates;
-
-        // Get existing memory
-        const existingMemory = await db.memories.findById(id);
-
-        // If content changed, re-generate embedding
-        let vectorId = existingMemory.vector_id;
-        if (content && content !== existingMemory.content) {
-            const embedding = await generateEmbedding(content);
-
-            // Delete old vector if it exists
-            if (existingMemory.vector_id) {
-                await vectorStore.delete(existingMemory.vector_id);
-            }
-
-            // Create new vector
-            await vectorStore.upsert(vectorId!, embedding, {
-                userId: existingMemory.user_id,
-                projectId: existingMemory.project_id || '',
-                memoryId: existingMemory.id,
-                text: content.substring(0, 500),
-            });
+        if (fetchError || !memory) {
+            return NextResponse.json(
+                { success: false, error: 'Memory not found' },
+                { status: 404 }
+            );
         }
 
-        // Update memory in Supabase
-        const memory = await db.memories.update(id, {
-            content: content || existingMemory.content,
-            source: source !== undefined ? source : existingMemory.source,
-            metadata: metadata || existingMemory.metadata,
-            vector_id: vectorId,
-        });
-
-        return NextResponse.json({
-            success: true,
-            memory,
-        });
-    } catch (error: any) {
-        console.error('Update memory error:', error);
-        return NextResponse.json(
-            {
-                success: false,
-                error: error.message || 'Failed to update memory',
-            },
-            { status: 500 }
-        );
-    }
-}
-
-// DELETE /api/memories/[id] - Delete a memory
-export async function DELETE(
-    request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
-) {
-    try {
-        const { id } = await params;
-
-        // Get memory to find vector_id
-        const memory = await db.memories.findById(id);
-
-        // Delete vector from Pinecone
-        if (memory.vector_id) {
-            await vectorStore.delete(memory.vector_id);
+        if (memory.user_id !== session.user.id) {
+            return NextResponse.json(
+                { success: false, error: 'Unauthorized' },
+                { status: 403 }
+            );
         }
 
-        // Delete memory from Supabase
-        await db.memories.delete(id);
+        // Delete the memory
+        const { error: deleteError } = await supabaseAdmin
+            .from('memories')
+            .delete()
+            .eq('id', id);
 
-        return NextResponse.json({
-            success: true,
-            message: 'Memory deleted successfully',
-        });
+        if (deleteError) {
+            throw deleteError;
+        }
+
+        return NextResponse.json({ success: true });
     } catch (error: any) {
-        console.error('Delete memory error:', error);
+        console.error('Error deleting memory:', error);
         return NextResponse.json(
-            {
-                success: false,
-                error: error.message || 'Failed to delete memory',
-            },
+            { success: false, error: 'Failed to delete memory' },
             { status: 500 }
         );
     }

@@ -26,20 +26,25 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: #000000;
     --foreground: #ededed;
 
-    /* Dark mode colors */
-    --primary: 250 84% 64%;
-    --secondary: 280 65% 70%;
-    --accent: 340 75% 65%;
-    --muted: 217 10% 15%;
-    --border: 217 10% 20%;
+    /* Zinc/Neutral Palette for SuperMemory look */
+    --primary: 0 0% 98%;
+    --secondary: 240 5% 65%;
+    --accent: 240 4% 16%;
+    --muted: 240 4% 16%;
+    --border: 240 6% 10%;
 
     /* Glassmorphism dark */
-    --glass-bg: rgba(10, 10, 10, 0.6);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    --glass-bg: rgba(0, 0, 0, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
   }
+}
+
+.bg-dot-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 body {
