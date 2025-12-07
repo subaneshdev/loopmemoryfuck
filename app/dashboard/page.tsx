@@ -128,7 +128,7 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white bg-dot-pattern selection:bg-white/20">
+        <div className="min-h-screen text-white selection:bg-white/20">
             {/* Header */}
             <header className="fixed top-0 w-full z-50 border-b border-white/5 bg-black/50 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -171,7 +171,7 @@ export default function DashboardPage() {
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                                 onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && (e.preventDefault(), handleSearch())}
-                                placeholder="Ask your supermemory..."
+                                placeholder="Ask LoopMemory..."
                                 className="w-full bg-transparent border-none text-lg text-white placeholder-gray-500 focus:ring-0 resize-none min-h-[60px] mb-4"
                             />
 
