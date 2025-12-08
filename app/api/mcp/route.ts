@@ -89,8 +89,13 @@ const TOOLS = [
 // Get authenticated user
 async function getAuthenticatedUser(request: NextRequest): Promise<{ userId: string; userEmail: string; error?: string }> {
     // Try OAuth token first
-    const authHeader = request.headers.get('Authorization');
-    const token = extractBearerToken(authHeader);
+    // Try OAuth token first (Header or Query Param)
+    let token = extractBearerToken(request.headers.get('Authorization'));
+
+    // Fallback: Check query parameter 'token'
+    if (!token) {
+        token = request.nextUrl.searchParams.get('token');
+    }
 
     if (token) {
         // Check if it's likely a Supabase Anon Key (starts with eyJ and contains "role":"anon" when decoded, or just by checking the known anon key pattern if possible, but decoding is safer/more generic)

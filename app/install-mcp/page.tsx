@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 export default function InstallMCPPage() {
     const [selectedClient, setSelectedClient] = useState<string>('claude');
-    const [selectedOS, setSelectedOS] = useState<string>('mac');
+
     const [generatedToken, setGeneratedToken] = useState<string>('');
     const [loadingToken, setLoadingToken] = useState(false);
     const [copiedToken, setCopiedToken] = useState(false);
@@ -17,13 +17,9 @@ export default function InstallMCPPage() {
     const getCommand = () => {
         const tokenPart = generatedToken ? generatedToken : '<PASTE_TOKEN_HERE>';
 
-        if (selectedOS === 'windows') {
-            // PowerShell command with proper quoting
-            return `npx -y install-mcp@latest ${appUrl}/api/mcp --client ${selectedClient} --oauth=no --header 'Authorization: Bearer ${tokenPart}'`;
-        }
-
-        // Mac/Linux (Bash/Zsh)
-        return `npx -y install-mcp@latest ${appUrl}/api/mcp --client ${selectedClient} --oauth=no --header "Authorization: Bearer ${tokenPart}"`;
+        // Use query parameter for token to avoid shell quoting issues on Windows
+        // This is safer and works on all platforms
+        return `npx -y install-mcp@latest "${appUrl}/api/mcp?token=${tokenPart}" --client ${selectedClient} --oauth=no`;
     };
 
     const handleCopyToken = () => {
@@ -101,29 +97,7 @@ export default function InstallMCPPage() {
                             <h2 className="text-xl font-bold">Select Your AI Client</h2>
                         </div>
 
-                        {/* OS Selection */}
-                        <div className="flex justify-center mb-8">
-                            <div className="bg-gray-100 dark:bg-gray-800 p-1 rounded-xl inline-flex">
-                                <button
-                                    onClick={() => setSelectedOS('mac')}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${selectedOS === 'mac'
-                                        ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400'
-                                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                                        }`}
-                                >
-                                    Mac / Linux
-                                </button>
-                                <button
-                                    onClick={() => setSelectedOS('windows')}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${selectedOS === 'windows'
-                                        ? 'bg-white dark:bg-gray-700 shadow-sm text-blue-600 dark:text-blue-400'
-                                        : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
-                                        }`}
-                                >
-                                    Windows
-                                </button>
-                            </div>
-                        </div>
+
 
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                             {clients.map((client) => (
