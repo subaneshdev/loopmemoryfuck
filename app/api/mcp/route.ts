@@ -87,18 +87,43 @@ const TOOLS = [
 ];
 
 // Get authenticated user
-async function getAuthenticatedUser(request: NextRequest) {
+async function getAuthenticatedUser(request: NextRequest): Promise<{ userId: string; userEmail: string; error?: string }> {
     // Try OAuth token first
     const authHeader = request.headers.get('Authorization');
     const token = extractBearerToken(authHeader);
 
     if (token) {
-        const tokenData = await verifyAccessToken(token);
-        if (tokenData) {
-            return {
-                userId: tokenData.userId,
-                userEmail: tokenData.email,
-            };
+        // Check if it's likely a Supabase Anon Key (starts with eyJ and contains "role":"anon" when decoded, or just by checking the known anon key pattern if possible, but decoding is safer/more generic)
+        // Simple heuristic: Supabase tokens often have "anon" role.
+        try {
+            // We can't easily decode without a library here if we don't want to add dependencies, 
+            // but we can check if verifyAccessToken fails and then try to see if it was an anon key.
+            const tokenData = await verifyAccessToken(token);
+            if (tokenData) {
+                return {
+                    userId: tokenData.userId,
+                    userEmail: tokenData.email,
+                };
+            } else {
+                // Verification failed. Let's see if we can give a better error message.
+                // A Supabase anon key is a valid JWT but won't pass our verifyAccessToken because we use a different secret (or it expects a different signature/audience if we were using the same secret but different claims).
+                // Actually, verifyAccessToken uses JWT_SECRET. The anon key is signed with the Supabase project secret. 
+                // Unless JWT_SECRET is the same as Supabase secret (which it might be in dev), it won't verify.
+
+                // Let's just return a generic error for now, but the caller can handle the "Unauthorized" response.
+                // However, to be specific about the Anon Key:
+                // We can check if the token matches the NEXT_PUBLIC_SUPABASE_ANON_KEY
+                const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+                if (anonKey && token === anonKey) {
+                    return {
+                        userId: '',
+                        userEmail: '',
+                        error: 'It looks like you are using the Supabase Anon Key. Please generate a valid MCP Access Token from the /install-mcp page.'
+                    };
+                }
+            }
+        } catch (e) {
+            // ignore
         }
     }
 
@@ -331,7 +356,18 @@ export async function GET(request: NextRequest) {
 // POST endpoint for JSON-RPC requests  
 export async function POST(request: NextRequest) {
     try {
-        const { userId, userEmail } = await getAuthenticatedUser(request);
+        const { userId, userEmail, error } = await getAuthenticatedUser(request);
+
+        if (error) {
+            return Response.json({
+                jsonrpc: '2.0',
+                id: null,
+                error: {
+                    code: -32001,
+                    message: error,
+                },
+            }, { status: 401 });
+        }
 
         if (!userId) {
             return Response.json({
