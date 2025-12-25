@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain, Plus, Search as SearchIcon, Loader2, LogOut, Trash2, ChevronDown, Sparkles, Command, History, Settings, ArrowUp } from 'lucide-react';
+import { Brain, Plus, Search as SearchIcon, Loader2, LogOut, Trash2, ChevronDown, Sparkles, Command, History, Settings, ArrowUp, Share2, LayoutGrid } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
+import GraphView from '@/components/KnowledgeGraph';
 
 export default function DashboardPage() {
     const { user, loading: authLoading, signOut } = useAuth();
@@ -16,6 +17,7 @@ export default function DashboardPage() {
     const [newMemory, setNewMemory] = useState({ text: '', source: '' });
     const [error, setError] = useState('');
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [viewMode, setViewMode] = useState<'list' | 'graph'>('list');
 
     // Fetch recent memories
     useEffect(() => {
@@ -138,6 +140,22 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-6">
+                        <div className="flex bg-zinc-800/50 rounded-lg p-1 border border-white/5">
+                            <button
+                                onClick={() => setViewMode('list')}
+                                className={`p-1.5 rounded-md transition-colors ${viewMode === 'list' ? 'bg-zinc-700 text-white' : 'text-gray-400 hover:text-white'}`}
+                                title="List View"
+                            >
+                                <LayoutGrid className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={() => setViewMode('graph')}
+                                className={`p-1.5 rounded-md transition-colors ${viewMode === 'graph' ? 'bg-zinc-700 text-white' : 'text-gray-400 hover:text-white'}`}
+                                title="Graph View"
+                            >
+                                <Share2 className="w-4 h-4" />
+                            </button>
+                        </div>
                         <button
                             onClick={() => setShowAddForm(true)}
                             className="flex items-center gap-2 px-3 py-1.5 bg-white text-black text-sm font-medium rounded-full hover:bg-gray-200 transition-colors"
@@ -146,8 +164,6 @@ export default function DashboardPage() {
                             Add Memory
                         </button>
                         <div className="flex items-center gap-4">
-                            <History className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer transition-colors" />
-                            <Settings className="w-5 h-5 text-gray-400 hover:text-white cursor-pointer transition-colors" />
                             <Link href="/install-mcp" className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold hover:bg-blue-500 transition-colors">
                                 S
                             </Link>
@@ -233,44 +249,59 @@ export default function DashboardPage() {
                     </div>
                 )}
 
-                {/* Memories Grid */}
+                {/* Content Area */}
                 <div className="space-y-6">
-                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-8 animate-pulse">
-                        <ChevronDown className="w-4 h-4" />
-                        <span>Scroll down to see memories</span>
-                        <ChevronDown className="w-4 h-4" />
-                    </div>
-
-                    {error && (
-                        <div className="p-4 bg-red-900/20 text-red-400 border border-red-900/50 rounded-xl text-center">
-                            {error}
+                    {viewMode === 'graph' ? (
+                        <div className="animate-in fade-in duration-500">
+                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                                <Share2 className="w-5 h-5 text-blue-500" />
+                                Knowledge Graph
+                            </h2>
+                            <p className="text-gray-400 mb-6 text-sm">
+                                Visualizing the connections between your memories, entities, and projects.
+                            </p>
+                            <GraphView />
                         </div>
-                    )}
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {memories.map((memory) => (
-                            <div key={memory.id} className="group relative bg-zinc-900/40 border border-white/5 hover:border-white/10 rounded-xl p-5 transition-all hover:bg-zinc-900/60">
-                                <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-4 group-hover:text-gray-200">
-                                    {memory.content}
-                                </p>
-                                <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
-                                    <span className="text-xs text-gray-600 font-mono">
-                                        {new Date(memory.created_at).toLocaleDateString()}
-                                    </span>
-                                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button
-                                            onClick={() => handleDelete(memory.id)}
-                                            disabled={deletingId === memory.id}
-                                            className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
-                                            title="Delete Memory"
-                                        >
-                                            {deletingId === memory.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-                                        </button>
-                                    </div>
-                                </div>
+                    ) : (
+                        <>
+                            <div className="flex items-center justify-center gap-2 text-sm text-gray-600 mb-8 animate-pulse">
+                                <ChevronDown className="w-4 h-4" />
+                                <span>Scroll down to see memories</span>
+                                <ChevronDown className="w-4 h-4" />
                             </div>
-                        ))}
-                    </div>
+
+                            {error && (
+                                <div className="p-4 bg-red-900/20 text-red-400 border border-red-900/50 rounded-xl text-center">
+                                    {error}
+                                </div>
+                            )}
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {memories.map((memory) => (
+                                    <div key={memory.id} className="group relative bg-zinc-900/40 border border-white/5 hover:border-white/10 rounded-xl p-5 transition-all hover:bg-zinc-900/60">
+                                        <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-4 group-hover:text-gray-200">
+                                            {memory.content}
+                                        </p>
+                                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-white/5">
+                                            <span className="text-xs text-gray-600 font-mono">
+                                                {new Date(memory.created_at).toLocaleDateString()}
+                                            </span>
+                                            <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button
+                                                    onClick={() => handleDelete(memory.id)}
+                                                    disabled={deletingId === memory.id}
+                                                    className="p-1.5 text-gray-500 hover:text-red-400 hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    title="Delete Memory"
+                                                >
+                                                    {deletingId === memory.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </>
+                    )}
                 </div>
             </main>
         </div>

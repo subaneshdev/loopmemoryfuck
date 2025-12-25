@@ -65,3 +65,64 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
 
     return embeddings;
 }
+
+// Entity Extraction Types
+export interface GraphEntity {
+    name: string;
+    type: string;
+}
+
+export interface GraphRelation {
+    source: string;
+    target: string;
+    type: string;
+}
+
+export interface ExtractionResult {
+    entities: GraphEntity[];
+    relations: GraphRelation[];
+}
+
+/**
+ * Extract entities and relationships from text using Gemini
+ * using a structured prompt.
+ */
+export async function extractEntities(text: string): Promise<ExtractionResult> {
+    try {
+        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+
+        const prompt = `
+        You are an advanced Knowledge Graph extractor. Analyze the following text and extract:
+        1. Entities (People, Projects, Topics, Organizations, Technologies, Locations).
+        2. Relationships between these entities.
+
+        Text: "${text}"
+
+        Return JSON ONLY with this structure:
+        {
+          "entities": [
+            {"name": "Entity Name", "type": "TYPE"}
+          ],
+          "relations": [
+            {"source": "Entity Name 1", "target": "Entity Name 2", "type": "RELATION_TYPE"}
+          ]
+        }
+        
+        Keep types general: PERSON, PROJECT, TOPIC, ORG, TECH, LOCATION.
+        Relation types should be screaming snake case: WORKS_ON, LOCATED_IN, RELATED_TO, USED_BY.
+        `;
+
+        const result = await model.generateContent(prompt);
+        const response = result.response;
+        const textResponse = response.text();
+
+        // Clean markdown code blocks if present
+        const jsonStr = textResponse.replace(/^```json\n|\n```$/g, '').trim();
+
+        return JSON.parse(jsonStr) as ExtractionResult;
+    } catch (error) {
+        console.error('Entity extraction error:', error);
+        // Return empty result on failure to not block memory creation
+        return { entities: [], relations: [] };
+    }
+}

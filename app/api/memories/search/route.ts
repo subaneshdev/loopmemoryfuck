@@ -45,9 +45,23 @@ export async function POST(request: NextRequest) {
         for (const match of matches) {
             if (match.score && match.score >= minScore) {
                 try {
-                    const memory = await db.memories.findById(match.metadata?.memoryId as string);
+                    const memoryId = match.metadata?.memoryId as string;
+                    const memory = await db.memories.findById(memoryId);
+
+                    // Fetch Graph Context
+                    const relations = await db.graph.getMemoryRelations(memoryId);
+
+                    const graphContext = relations?.map((r: any) => ({
+                        name: r.node.name,
+                        type: r.node.type,
+                        relation: r.relation_type
+                    })) || [];
+
                     results.push({
-                        memory,
+                        memory: {
+                            ...memory,
+                            graph_context: graphContext // Attach to response
+                        },
                         score: match.score,
                     });
                 } catch (error) {

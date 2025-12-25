@@ -26,6 +26,11 @@ export interface Memory {
   vector_id?: string;
   created_at: string;
   updated_at: string;
+  graph_context?: {
+    name: string;
+    type: string;
+    relation: string;
+  }[];
 }
 
 export interface Document {

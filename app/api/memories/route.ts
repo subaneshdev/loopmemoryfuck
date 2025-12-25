@@ -58,6 +58,59 @@ export async function POST(request: NextRequest) {
             text: text.substring(0, 500),
         });
 
+        // --- Knowledge Graph Integration ---
+        // 1. Extract Entities (Async - considering making this background job for speed, 
+        //    but for now we do it inline to ensure consistency)
+        try {
+            const { entities, relations } = await import('@/lib/gemini').then(m => m.extractEntities(text));
+
+            const nodeMap = new Map<string, string>(); // Name -> NodeID
+
+            // 2. Upsert Nodes
+            for (const entity of entities) {
+                try {
+                    const node = await db.graph.upsertNode({
+                        name: entity.name,
+                        type: entity.type
+                    });
+                    if (node) nodeMap.set(entity.name, node.id);
+
+                    // Link Memory -> Node (MENTIONS)
+                    if (node) {
+                        await db.graph.linkMemoryToNode({
+                            memory_id: memory.id,
+                            node_id: node.id,
+                            relation_type: 'MENTIONS'
+                        });
+                    }
+                } catch (e) {
+                    console.error('Failed to upsert node:', entity.name, e);
+                }
+            }
+
+            // 3. Upsert Relations (Edges between nodes)
+            for (const rel of relations) {
+                const sourceId = nodeMap.get(rel.source);
+                const targetId = nodeMap.get(rel.target);
+
+                if (sourceId && targetId) {
+                    try {
+                        await db.graph.createEdge({
+                            source_node_id: sourceId,
+                            target_node_id: targetId,
+                            relation_type: rel.type
+                        });
+                    } catch (e) {
+                        console.error('Failed to create edge:', rel, e);
+                    }
+                }
+            }
+        } catch (graphError) {
+            console.error('Graph enrichment failed:', graphError);
+            // Verify we don't fail the request if graph fails
+        }
+        // -----------------------------------
+
         const response: CreateMemoryResponse = {
             success: true,
             memory,
