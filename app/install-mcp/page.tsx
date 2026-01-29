@@ -103,8 +103,8 @@ export default function InstallMCPPage() {
                                     key={client.id}
                                     onClick={() => setSelectedClient(client.id)}
                                     className={`p-6 border-2 text-left transition-all ${selectedClient === client.id
-                                            ? 'border-[#FF5500] bg-[#fff0e6] shadow-[4px_4px_0px_#FF5500] translate-x-[-2px] translate-y-[-2px]'
-                                            : 'border-black hover:border-[#FF5500]'
+                                        ? 'border-[#FF5500] bg-[#fff0e6] shadow-[4px_4px_0px_#FF5500] translate-x-[-2px] translate-y-[-2px]'
+                                        : 'border-black hover:border-[#FF5500]'
                                         }`}
                                 >
                                     <div className="text-3xl mb-3">{client.icon}</div>
