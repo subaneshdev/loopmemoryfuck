@@ -1,210 +1,250 @@
 import Link from "next/link";
-import { Brain, Search, Zap, Database, Globe, Shield, ArrowRight, Cpu, Network } from "lucide-react";
+import { Brain, Database, Zap, Network, Layers, Cpu, ArrowRight, Share2, Box, Search, Lock } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-black text-white selection:bg-[#ED5729] selection:text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#03030f] text-white selection:bg-[#00F0FF] selection:text-black overflow-x-hidden">
+      {/* Grid Background */}
+      <div className="fixed inset-0 bg-[linear-gradient(to_right,#1f293a_1px,transparent_1px),linear-gradient(to_bottom,#1f293a_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none -z-10" />
+
       {/* Navigation */}
-      <nav className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <div className="flex items-center gap-2 group cursor-pointer">
-            <div className="relative">
-              <Brain className="w-8 h-8 text-[#ED5729] relative z-10 group-hover:rotate-12 transition-transform duration-500" />
-              <div className="absolute inset-0 bg-[#ED5729]/20 blur-lg rounded-full" />
-            </div>
-            <span className="text-2xl font-bold font-heading tracking-tight uppercase">
-              LoopMemory
-            </span>
+      <nav className="fixed top-0 w-full z-50 glass-card border-b-0 border-b-white/5 rounded-b-2xl mx-auto max-w-[95%] left-0 right-0 mt-4 h-16 flex items-center justify-between px-6">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#00F0FF] to-[#7000FF] flex items-center justify-center shadow-[0_0_15px_rgba(0,240,255,0.5)]">
+            <Brain className="w-5 h-5 text-white" />
           </div>
-          <div className="flex items-center gap-6">
-            <Link
-              href="/dashboard"
-              className="hidden md:block text-sm font-medium hover:text-[#ED5729] transition-colors uppercase tracking-widest"
-            >
-              Dashboard
-            </Link>
-            <Link
-              href="/login"
-              className="px-6 py-2 bg-[#ED5729] text-white font-bold uppercase tracking-wider hover:bg-[#ff6b3d] transition-all clip-path-slant"
-            >
-              Get Started
-            </Link>
-          </div>
+          <span className="text-xl font-bold font-heading tracking-wide">LoopMemory</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <Link href="/docs" className="hidden md:block text-sm text-[#8899aa] hover:text-[#00F0FF] transition-colors font-mono">
+            DOCS
+          </Link>
+          <Link href="/pricing" className="hidden md:block text-sm text-[#8899aa] hover:text-[#00F0FF] transition-colors font-mono">
+            PRICING
+          </Link>
+          <Link
+            href="/dashboard"
+            className="px-5 py-2 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#00F0FF] text-white rounded-lg text-sm font-medium transition-all shadow-[0_0_10px_rgba(0,0,0,0.5)] hover:shadow-[0_0_15px_rgba(0,240,255,0.3)]"
+          >
+            LAUNCH APP
+          </Link>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center pt-20 px-6 overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#111111_1px,transparent_1px),linear-gradient(to_bottom,#111111_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] opacity-20 pointer-events-none" />
+      <section className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6 text-center">
+        {/* Glow Effects */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#7000FF] rounded-full filter blur-[150px] opacity-20" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-[#00F0FF] rounded-full filter blur-[150px] opacity-10" />
 
-        <div className="max-w-7xl mx-auto w-full grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-left z-10 animate-fade-in">
-            <div className="inline-flex items-center gap-2 text-[#ED5729] font-mono text-sm mb-6 border border-[#ED5729]/30 px-3 py-1 bg-[#ED5729]/5">
-              <span className="w-2 h-2 bg-[#ED5729] rounded-sm animate-pulse" />
-              SYSTEM ONLINE // V1.0.0
-            </div>
-            <h1 className="text-7xl md:text-8xl lg:text-9xl font-bold leading-[0.9] tracking-tighter mb-8 font-heading uppercase">
-              Universal
-              <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-neutral-500">
-                Memory
-              </span>
-            </h1>
-            <p className="text-xl md:text-2xl text-neutral-400 mb-10 max-w-xl font-light border-l-2 border-[#ED5729] pl-6">
-              Semantic storage and retrieval for your AI assistants.
-              <span className="block mt-2 text-white font-medium">Synced. Searchable. Persistent.</span>
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/dashboard" className="group relative px-8 py-4 bg-white text-black font-bold text-lg uppercase tracking-wider hover:bg-[#ED5729] hover:text-white transition-all overflow-hidden">
-                <span className="relative z-10 flex items-center gap-2">
-                  Start Building <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Link>
-              <Link href="/docs" className="px-8 py-4 border border-neutral-700 text-neutral-300 font-bold text-lg uppercase tracking-wider hover:border-white hover:text-white transition-colors">
-                Documentation
-              </Link>
-            </div>
+        <div className="z-10 max-w-5xl mx-auto space-y-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-mono text-[#00F0FF] mb-4 animate-fade-in">
+            <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+            V1.0.0 ONLINE
           </div>
 
-          {/* Abstract Industrial Visual */}
-          <div className="relative h-[600px] hidden lg:block animate-slide-in">
-            <div className="absolute inset-0 bg-gradient-to-tr from-[#ED5729]/10 to-transparent rounded-full blur-3xl opacity-30" />
-            <div className="relative h-full w-full border border-neutral-800 bg-neutral-900/50 backdrop-blur-sm p-8 flex flex-col justify-between">
-              <div className="flex justify-between items-start border-b border-neutral-800 pb-4 mb-4">
-                <div className="font-mono text-xs text-[#ED5729]">
-                  MEMORY_CORE_STATUS
-                  <br />
-                  <span className="text-white text-lg">ACTIVE</span>
-                </div>
-                <Cpu className="w-12 h-12 text-neutral-700" />
-              </div>
+          <h1 className="text-6xl md:text-8xl font-bold font-heading leading-tight tracking-tight">
+            THE UNIVERSAL<br />
+            <span className="text-gradient-primary">CORTEX FOR AI</span>
+          </h1>
 
-              <div className="space-y-4 font-mono text-sm text-neutral-500">
-                <div className="flex justify-between items-center bg-black/50 p-3 border-l-2 border-[#ED5729]">
-                  <span>VECTOR_INDEX_01</span>
-                  <span className="text-white">ONLINE</span>
-                </div>
-                <div className="flex justify-between items-center bg-black/50 p-3 border-l-2 border-neutral-700">
-                  <span>MCP_SERVER</span>
-                  <span className="text-white">CONNECTED</span>
-                </div>
-                <div className="flex justify-between items-center bg-black/50 p-3 border-l-2 border-neutral-700">
-                  <span>SYNC_PROTOCOL</span>
-                  <span className="text-white">IDLE</span>
-                </div>
-              </div>
+          <p className="text-xl text-[#8899aa] max-w-2xl mx-auto leading-relaxed">
+            The context engineering infrastructure for your AI agents.
+            <br />
+            <span className="text-white">Store, recall, and personalize in milliseconds.</span>
+          </p>
 
-              <div className="mt-auto pt-8 border-t border-neutral-800">
-                <div className="grid grid-cols-3 gap-4">
-                  <div>
-                    <div className="text-2xl font-bold font-heading text-white">4ms</div>
-                    <div className="text-xs text-neutral-500">LATENCY</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold font-heading text-white">99.9%</div>
-                    <div className="text-xs text-neutral-500">UPTIME</div>
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold font-heading text-[#ED5729]">∞</div>
-                    <div className="text-xs text-neutral-500">CAPACITY</div>
-                  </div>
-                </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8">
+            <Link
+              href="/dashboard"
+              className="group relative px-8 py-4 bg-white text-black font-bold text-lg rounded-xl hover:scale-105 transition-transform duration-300 shadow-[0_0_20px_rgba(255,255,255,0.3)] overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#00F0FF] to-[#7000FF] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative z-10 flex items-center gap-2 group-hover:text-white transition-colors">
+                START BUILDING <ArrowRight className="w-5 h-5" />
               </div>
+            </Link>
+
+            <Link
+              href="/docs"
+              className="px-8 py-4 bg-transparent border border-white/20 text-white font-medium text-lg rounded-xl hover:border-[#00F0FF] hover:text-[#00F0FF] hover:bg-[#00F0FF]/5 transition-all duration-300"
+            >
+              READ THE DOCS
+            </Link>
+          </div>
+
+          {/* Tech Stats */}
+          <div className="grid grid-cols-3 gap-8 pt-16 max-w-3xl mx-auto border-t border-white/5 mt-16 text-[#8899aa] font-mono text-sm">
+            <div>
+              <div className="text-2xl font-bold text-white mb-1"><span className="text-[#00F0FF]">&lt;</span>500ms</div>
+              <div>LATENCY</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-white mb-1">Vector</div>
+              <div>GRAPH ENGINE</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-white mb-1">MCP</div>
+              <div>READY</div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Stats Ticker */}
-      <div className="w-full bg-[#ED5729] text-black py-4 overflow-hidden">
-        <div className="flex whitespace-nowrap animate-marquee">
-          {[...Array(5)].map((_, i) => (
-            <span key={i} className="mx-8 font-heading font-bold text-2xl uppercase flex items-center gap-4">
-              Universal Memory <span className="w-2 h-2 bg-black rotate-45" />
-              Zero Latency <span className="w-2 h-2 bg-black rotate-45" />
-              MCP Standard <span className="w-2 h-2 bg-black rotate-45" />
-            </span>
-          ))}
-        </div>
-      </div>
-
-      {/* Features Section */}
-      <section className="py-32 px-6 bg-[#050505]">
-        <div className="max-w-7xl mx-auto">
-          <div className="mb-20 border-b border-neutral-800 pb-10">
-            <h2 className="text-5xl md:text-7xl font-bold font-heading uppercase mb-6">
-              Core Capabilities
+      {/* How It Works - Vertical Flow */}
+      <section className="py-32 px-6 relative">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-24">
+            <h2 className="text-4xl md:text-5xl font-bold font-heading mb-4">
+              INFRASTRUCTURE
+              <span className="text-[#7000FF]">.FLOW</span>
             </h2>
-            <p className="text-neutral-400 max-w-2xl text-lg">
-              Engineered for reliability, speed, and seamless integration with your existing AI workflows.
+            <p className="text-[#8899aa] max-w-xl mx-auto">
+              A comprehensive pipeline to give your AI agents long-term memory.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <FeatureCard
-              icon={<Brain className="w-8 h-8" />}
-              title="Semantic Search"
-              desc="Powered by Google Gemini embeddings. Finds memories by meaning, not just keywords."
+          <div className="space-y-24 relative">
+            {/* Connector Line */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-[#00F0FF]/30 to-transparent hidden md:block" />
+
+            {/* Step 1 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center relative">
+              <div className="md:text-right order-1 md:order-1">
+                <div className="text-[#00F0FF] font-mono text-xl mb-2">01. CONNECT</div>
+                <h3 className="text-3xl font-bold font-heading mb-4">PLUG & PLAY</h3>
+                <p className="text-[#8899aa] leading-relaxed">
+                  Plug LoopMemory into your stack in minutes.
+                  Compatible with LangChain, Vercel AI SDK, and custom agents via REST API.
+                </p>
+              </div>
+              <div className="order-2 md:order-2 flex justify-start pl-8 relative">
+                <div className="absolute left-0 top-1/2 -translate-x-1/2 w-4 h-4 bg-[#03030f] border-2 border-[#00F0FF] rounded-full hidden md:block shadow-[0_0_10px_#00F0FF]" />
+                <StepCard icon={<Network className="w-8 h-8 text-[#00F0FF]" />} title="Integration" />
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center relative">
+              <div className="md:order-2">
+                <div className="text-[#7000FF] font-mono text-xl mb-2">02. INGEST</div>
+                <h3 className="text-3xl font-bold font-heading mb-4">UNIVERSAL DATA</h3>
+                <p className="text-[#8899aa] leading-relaxed">
+                  Bring in any type of data, from anywhere.
+                  Documents, chat logs, codebases, or distinct memories.
+                </p>
+              </div>
+              <div className="md:order-1 flex justify-end pr-8 relative">
+                <div className="absolute right-0 top-1/2 translate-x-1/2 w-4 h-4 bg-[#03030f] border-2 border-[#7000FF] rounded-full hidden md:block shadow-[0_0_10px_#7000FF]" />
+                <StepCard icon={<Database className="w-8 h-8 text-[#7000FF]" />} title="Ingestion" />
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center relative">
+              <div className="md:text-right order-1 md:order-1">
+                <div className="text-[#00F0FF] font-mono text-xl mb-2">03. EMBED & ENRICH</div>
+                <h3 className="text-3xl font-bold font-heading mb-4">MAKE DATA SMART</h3>
+                <p className="text-[#8899aa] leading-relaxed">
+                  Automatic semantic embedding using Google Gemini.
+                  Enriched with metadata for precise retrieval.
+                </p>
+              </div>
+              <div className="order-2 md:order-2 flex justify-start pl-8 relative">
+                <div className="absolute left-0 top-1/2 -translate-x-1/2 w-4 h-4 bg-[#03030f] border-2 border-[#00F0FF] rounded-full hidden md:block shadow-[0_0_10px_#00F0FF]" />
+                <StepCard icon={<Cpu className="w-8 h-8 text-[#00F0FF]" />} title="Processing" />
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="grid md:grid-cols-2 gap-12 items-center relative">
+              <div className="md:order-2">
+                <div className="text-[#7000FF] font-mono text-xl mb-2">04. RECALL</div>
+                <h3 className="text-3xl font-bold font-heading mb-4">INSTANT RETRIEVAL</h3>
+                <p className="text-[#8899aa] leading-relaxed">
+                  Retrieve the right memory, instantly.
+                  Vector-graph engine understands user intent just like a human does.
+                </p>
+              </div>
+              <div className="md:order-1 flex justify-end pr-8 relative">
+                <div className="absolute right-0 top-1/2 translate-x-1/2 w-4 h-4 bg-[#03030f] border-2 border-[#7000FF] rounded-full hidden md:block shadow-[0_0_10px_#7000FF]" />
+                <StepCard icon={<Zap className="w-8 h-8 text-[#7000FF]" />} title="Recall" />
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Features Grid */}
+      <section className="py-20 px-6 bg-[#050510]">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold font-heading mb-12 text-center">
+            <span className="text-gradient-primary">TECHNICAL SPECIFICATIONS</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <TechCard
+              title="Vector-Graph Engine"
+              desc="Hybrid search combining vector similarity with knowledge graph relationships."
+              icon={<Share2 />}
             />
-            <FeatureCard
-              icon={<Network className="w-8 h-8" />}
-              title="MCP Integration"
-              desc="Native support for Model Context Protocol. Connect Claude, Cursor, and VSCode instantly."
+            <TechCard
+              title="MCP Standard"
+              desc="Native Model Context Protocol implementation for Claude and IDE integration."
+              icon={<Box />} // Changed from Cube to Box (lucide-react default)
             />
-            <FeatureCard
-              icon={<Database className="w-8 h-8" />}
-              title="Vector Storage"
-              desc="Pinecone-backed vector database for lightning-fast similarity search at scale."
+            <TechCard
+              title="Row-Level Security"
+              desc="Enterprise-grade security with granular permission controls per memory."
+              icon={<Lock />}
             />
-            <FeatureCard
-              icon={<Zap className="w-8 h-8" />}
-              title="Real-Time Sync"
-              desc="Changes reflect instantly across all connected clients and agents."
+            <TechCard
+              title="Real-time Sync"
+              desc="WebSocket-powered updates across all connected agents."
+              icon={<Zap />}
             />
-            <FeatureCard
-              icon={<Shield className="w-8 h-8" />}
-              title="Secure Vault"
-              desc="Role-level security ensures your memories are private and encrypted."
+            <TechCard
+              title="Semantic Caching"
+              desc="Reduce API costs with intelligent caching of similar queries."
+              icon={<Layers />}
             />
-            <FeatureCard
-              icon={<Globe className="w-8 h-8" />}
-              title="Universal API"
-              desc="Simple REST API to integrate memory into any custom AI application."
+            <TechCard
+              title="Fuzzy Search"
+              desc="Find what you need even with typo-laden or vague queries."
+              icon={<Search />}
             />
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-32 px-6 bg-white text-black relative">
-        <div className="max-w-5xl mx-auto text-center">
-          <h2 className="text-6xl md:text-8xl font-bold font-heading uppercase leading-none mb-10">
-            Ready to Upgrade?
+      {/* CTA */}
+      <section className="py-32 px-6 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-t from-[#00F0FF]/10 to-transparent pointer-events-none" />
+
+        <div className="max-w-4xl mx-auto relative z-10 glass-card p-12 rounded-3xl border border-white/10">
+          <h2 className="text-5xl md:text-7xl font-bold font-heading mb-8">
+            BUILD THE <br />
+            <span className="text-white">SUPERINTELLIGENCE</span>
           </h2>
           <Link
             href="/dashboard"
-            className="inline-flex h-20 items-center px-12 bg-black text-white text-xl font-bold uppercase tracking-widest hover:bg-[#ED5729] transition-colors"
+            className="inline-block px-12 py-5 bg-[#00F0FF] text-black font-bold text-xl rounded-full hover:shadow-[0_0_40px_rgba(0,240,255,0.6)] hover:scale-105 transition-all"
           >
-            Start Building Now
+            GET API KEY
           </Link>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="py-12 px-6 bg-neutral-950 border-t border-neutral-900 text-neutral-500 font-mono text-sm">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Brain className="w-5 h-5 text-[#ED5729]" />
-            <span className="font-heading font-bold text-white uppercase tracking-wider text-lg">LoopMemory</span>
-          </div>
-          <div className="flex gap-8">
-            <a href="#" className="hover:text-[#ED5729] transition-colors">DOCS</a>
-            <a href="#" className="hover:text-[#ED5729] transition-colors">API</a>
-            <a href="#" className="hover:text-[#ED5729] transition-colors">GITHUB</a>
+      <footer className="py-12 px-6 border-t border-white/5 bg-[#020205]">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-[#8899aa] text-sm font-mono">
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <Brain className="w-5 h-5 text-[#7000FF]" />
+            <span className="text-white">LoopMemory</span>
           </div>
           <div>
-            © 2024 SYSTEM INC.
+            © 2024 LOOPMEMORY LABS. ALL RIGHTS RESERVED.
           </div>
         </div>
       </footer>
@@ -212,18 +252,24 @@ export default function Home() {
   );
 }
 
-function FeatureCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
+function StepCard({ icon, title }: { icon: React.ReactNode, title: string }) {
   return (
-    <div className="group p-8 bg-[#111] border border-neutral-800 hover:border-[#ED5729] transition-all duration-300">
-      <div className="mb-6 text-[#ED5729] group-hover:scale-110 transition-transform origin-left">
+    <div className="w-full max-w-sm glass-card p-8 rounded-2xl hover:-translate-y-2 transition-transform duration-300">
+      <div className="mb-4 p-3 bg-white/5 rounded-xl w-fit">
         {icon}
       </div>
-      <h3 className="text-2xl font-bold font-heading uppercase text-white mb-3 group-hover:text-[#ED5729] transition-colors">
-        {title}
-      </h3>
-      <p className="text-neutral-400 leading-relaxed">
-        {desc}
-      </p>
+      <div className="text-xl font-bold text-white mb-2 font-heading tracking-wide">{title}</div>
+      <div className="h-1 w-12 bg-white/20 rounded-full" />
+    </div>
+  );
+}
+
+function TechCard({ icon, title, desc }: { icon: React.ReactNode, title: string, desc: string }) {
+  return (
+    <div className="p-6 rounded-xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.05] hover:border-[#00F0FF]/30 transition-all group">
+      <div className="mb-4 text-[#8899aa] group-hover:text-[#00F0FF] transition-colors">{icon}</div>
+      <h4 className="text-lg font-bold text-white mb-2">{title}</h4>
+      <p className="text-sm text-[#8899aa] leading-relaxed">{desc}</p>
     </div>
   );
 }

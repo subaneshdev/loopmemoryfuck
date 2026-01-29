@@ -1,24 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --background: #000000;
+  --background: #03030f;
+  /* Deep galactic blue/black */
   --foreground: #ffffff;
 
-  /* Intrepid-inspired Palette */
-  --primary: #ED5729;
-  /* Intrepid Orange */
-  --primary-foreground: #ffffff;
+  /* ChainGPT-inspired Neon Palette */
+  --primary: #00F0FF;
+  /* Electric Cyan */
+  --primary-foreground: #000000;
 
-  --secondary: #111111;
+  --secondary: #7000FF;
+  /* Neon Purple */
   --secondary-foreground: #ffffff;
 
-  --accent: #222222;
-  --accent-foreground: #ffffff;
+  --accent: #1a1a2e;
+  /* Dark Blue-Gray */
+  --accent-foreground: #00F0FF;
 
-  --muted: #444444;
-  --muted-foreground: #a0a0a0;
+  --muted: #0f0f1a;
+  --muted-foreground: #8899aa;
 
-  --border: #333333;
+  --border: #1f293a;
+  --glass-border: rgba(255, 255, 255, 0.1);
 }
 
 @theme inline {
@@ -31,7 +35,7 @@
   --color-border: var(--border);
 
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
-  --font-heading: var(--font-oswald), sans-serif;
+  --font-heading: var(--font-space-grotesk), sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -41,6 +45,11 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image:
+    radial-gradient(circle at 50% 0%, #1f1f3a 0%, transparent 50%),
+    radial-gradient(circle at 100% 0%, #7000FF20 0%, transparent 30%),
+    radial-gradient(circle at 0% 100%, #00F0FF10 0%, transparent 30%);
+  background-attachment: fixed;
 }
 
 h1,
@@ -50,42 +59,98 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  text-transform: uppercase;
+  letter-spacing: -0.02em;
+}
+
+/* Utilities */
+.glass-card {
+  background: rgba(10, 10, 20, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+.glass-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #fff 30%, #888 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0.5;
+}
+
+/* Animations */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    opacity: 0.5;
+    box-shadow: 0 0 5px var(--primary);
+  }
+
+  50% {
+    opacity: 1;
+    box-shadow: 0 0 20px var(--primary), 0 0 10px var(--secondary);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 3s infinite;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #000;
+  background: #03030f;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 4px;
+  background: #1f293a;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ED5729;
-}
-
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  display: flex;
-  animation: marquee 20s linear infinite;
-}
-
-.clip-path-slant {
-  clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+  background: var(--primary);
 }
