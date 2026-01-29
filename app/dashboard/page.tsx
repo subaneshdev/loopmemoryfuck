@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Brain, Plus, Search as SearchIcon, Loader2, LogOut, Trash2, ChevronDown, Sparkles, Command, History, Settings, ArrowUp, Share2, LayoutGrid } from 'lucide-react';
+import { Brain, Plus, Search as SearchIcon, Loader2, LogOut, Trash2, ChevronDown, Sparkles, Command, History, Settings, ArrowUp, Share2, LayoutGrid, Terminal } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
@@ -164,9 +164,13 @@ export default function DashboardPage() {
                             Add Memory
                         </button>
                         <div className="flex items-center gap-4">
-                            <Link href="/install-mcp" className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-bold hover:bg-blue-500 transition-colors">
-                                S
+                            <Link href="/install-mcp" className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-full transition-colors border border-blue-500 hover:border-blue-400 shadow-lg shadow-blue-900/20">
+                                <Terminal className="w-3.5 h-3.5" />
+                                <span className="hidden sm:inline">Connect LoopMemory MCP</span>
                             </Link>
+                            <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold border border-white/10 text-white">
+                                {user?.email?.[0].toUpperCase()}
+                            </div>
                         </div>
                     </div>
                 </div>
