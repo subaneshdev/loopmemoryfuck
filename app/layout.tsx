@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { Inter, Space_Grotesk, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -76,6 +77,7 @@ export default function RootLayout({
         <AuthProvider>
           <Prism />
           {children}
+          <Analytics />
         </AuthProvider>
       </body>
     </html>
