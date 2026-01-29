@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
-import { Inter, Geist_Mono } from "next/font/google";
+import { Inter, Oswald, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./providers/auth-provider";
 import Prism from "./components/Prism";
 
 const inter = Inter({
   variable: "--font-inter",
+  subsets: ["latin"],
+  display: "swap",
+});
+
+const oswald = Oswald({
+  variable: "--font-oswald",
   subsets: ["latin"],
   display: "swap",
 });
@@ -28,7 +34,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${geistMono.variable} antialiased`}
+        className={`${inter.variable} ${oswald.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
           <Prism />
