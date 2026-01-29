@@ -1,28 +1,23 @@
 @import "tailwindcss";
 
 :root {
-  --background: #03030f;
-  /* Deep galactic blue/black */
-  --foreground: #ffffff;
+  --background: #f0f0f0;
+  /* Light Gray */
+  --foreground: #000000;
 
-  /* ChainGPT-inspired Neon Palette */
-  --primary: #00F0FF;
-  /* Electric Cyan */
-  --primary-foreground: #000000;
+  /* ChainGPT-lab Industrial Palette */
+  --primary: #FF5500;
+  /* Bright Industrial Orange */
+  --primary-foreground: #ffffff;
 
-  --secondary: #7000FF;
-  /* Neon Purple */
-  --secondary-foreground: #ffffff;
+  --secondary: #e0e0e0;
+  --secondary-foreground: #000000;
 
-  --accent: #1a1a2e;
-  /* Dark Blue-Gray */
-  --accent-foreground: #00F0FF;
+  --accent: #FF5500;
+  --accent-foreground: #ffffff;
 
-  --muted: #0f0f1a;
-  --muted-foreground: #8899aa;
-
-  --border: #1f293a;
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --border: #cccccc;
+  --muted: #999999;
 }
 
 @theme inline {
@@ -31,8 +26,8 @@
   --color-primary: var(--primary);
   --color-secondary: var(--secondary);
   --color-accent: var(--accent);
-  --color-muted: var(--muted);
   --color-border: var(--border);
+  --color-muted: var(--muted);
 
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-heading: var(--font-space-grotesk), sans-serif;
@@ -45,11 +40,6 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-image:
-    radial-gradient(circle at 50% 0%, #1f1f3a 0%, transparent 50%),
-    radial-gradient(circle at 100% 0%, #7000FF20 0%, transparent 30%),
-    radial-gradient(circle at 0% 100%, #00F0FF10 0%, transparent 30%);
-  background-attachment: fixed;
 }
 
 h1,
@@ -60,97 +50,77 @@ h5,
 h6 {
   font-family: var(--font-heading);
   letter-spacing: -0.02em;
+  text-transform: uppercase;
+}
+
+/* Grid Background */
+.bg-grid-pattern {
+  background-size: 100px 100px;
+  background-image:
+    linear-gradient(to right, #e0e0e0 1px, transparent 1px),
+    linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
 }
 
 /* Utilities */
-.glass-card {
-  background: rgba(10, 10, 20, 0.6);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+.industrial-border {
+  border: 1px solid #cccccc;
 }
 
-.glass-card:hover {
-  border-color: var(--primary);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+.industrial-card {
+  background: #ffffff;
+  border: 1px solid #000000;
+  padding: 1.5rem;
+  transition: all 0.2s ease;
 }
 
-.text-gradient {
-  background: linear-gradient(135deg, #fff 30%, #888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.industrial-card:hover {
+  transform: translate(-4px, -4px);
+  box-shadow: 4px 4px 0px #FF5500;
 }
 
-.text-gradient-primary {
-  background: linear-gradient(135deg, #00F0FF 0%, #7000FF 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+.text-massive {
+  font-size: 12rem;
+  line-height: 0.8;
+  font-weight: 900;
+  color: #000;
+  white-space: nowrap;
 }
 
-.neon-border {
-  position: relative;
+.bg-orange-accent {
+  background-color: var(--primary);
+  color: white;
 }
 
-.neon-border::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--primary), transparent);
-  opacity: 0.5;
-}
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
 
-/* Animations */
-@keyframes float {
-
-  0%,
   100% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(-10px);
+    transform: translateX(-50%);
   }
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+.animate-marquee {
+  display: flex;
+  animation: marquee 30s linear infinite;
 }
 
-@keyframes pulse-glow {
-
-  0%,
-  100% {
-    opacity: 0.5;
-    box-shadow: 0 0 5px var(--primary);
-  }
-
-  50% {
-    opacity: 1;
-    box-shadow: 0 0 20px var(--primary), 0 0 10px var(--secondary);
-  }
-}
-
-.animate-pulse-glow {
-  animation: pulse-glow 3s infinite;
-}
-
-/* Custom Scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #03030f;
+  background: #e0e0e0;
+  border-left: 1px solid #ccc;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #1f293a;
-  border-radius: 3px;
+  background: #000;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--primary);
+  background: #FF5500;
 }
