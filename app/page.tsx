@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Brain, Database, Zap, Network, Layers, Share2, Box, Search, Lock, ArrowRight, CornerDownRight } from "lucide-react";
+import { Brain, Database, Zap, Network, Layers, Share2, Box, Search, Lock, ArrowRight, CornerDownRight, Terminal } from "lucide-react";
 
 export default function Home() {
   return (
@@ -53,6 +53,17 @@ export default function Home() {
               </div>
               <Link href="/dashboard" className="flex-1 p-6 bg-black text-white hover:bg-[#FF5500] transition-colors flex items-center justify-center gap-2 font-bold uppercase tracking-wide group">
                 Start Building <ArrowRight className="group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </div>
+
+            {/* Setup Button */}
+            <div className="flex justify-center mt-8">
+              <Link
+                href="/install-mcp"
+                className="inline-flex items-center gap-2 px-6 py-3 border border-black bg-white text-black font-mono text-xs uppercase hover:bg-black hover:text-white transition-all shadow-[4px_4px_0px_#000000] hover:translate-x-[-2px] hover:translate-y-[-2px]"
+              >
+                <Terminal className="w-4 h-4" />
+                Setup LoopMemory MCP
               </Link>
             </div>
           </div>
