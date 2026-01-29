@@ -2,8 +2,28 @@ import Link from "next/link";
 import { Brain, Database, Zap, Network, Layers, Share2, Box, Search, Lock, ArrowRight, CornerDownRight, Terminal } from "lucide-react";
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "LoopMemory",
+    "applicationCategory": "DeveloperApplication",
+    "operatingSystem": "Any",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "The context engineering infrastructure for your AI agents. Universal Memory Cortex.",
+    "softwareRequirements": "Node.js, MCP Client (Claude/Cursor)",
+    "featureList": ["Vector Graph Engine", "MCP Integration", "Semantic Search", "Real-time Sync"]
+  };
+
   return (
     <div className="min-h-screen bg-[#f0f0f0] text-black selection:bg-[#FF5500] selection:text-white overflow-x-hidden font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
       {/* Grid Background Layer */}
       <div className="fixed inset-0 bg-grid-pattern pointer-events-none -z-10" />

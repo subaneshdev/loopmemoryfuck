@@ -22,8 +22,45 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LoopMemory - Universal Memory for AI Assistants",
-  description: "Store, search, and retrieve memories across all your AI platforms with semantic search and MCP integration.",
+  title: {
+    default: "LoopMemory - The Universal Cortex for AI Agents",
+    template: "%s | LoopMemory"
+  },
+  description: "The context engineering infrastructure for AI agents. Store, recall, and personalize interactions in milliseconds with Vector Graph Engine and MCP.",
+  keywords: ["MCP", "Model Context Protocol", "AI Memory", "Vector Database", "Knowledge Graph", "LLM Context", "AI Agents", "Semantic Search", "RAG"],
+  openGraph: {
+    title: "LoopMemory - The Universal Cortex for AI Agents",
+    description: "Give your AI agents infinite long-term memory. Plug & play MCP server for Claude, Cursor, and custom LLMs.",
+    url: "https://loopmemory.vercel.app",
+    siteName: "LoopMemory",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.png", // Ensure this exists or use a generic placeholder
+        width: 1200,
+        height: 630,
+        alt: "LoopMemory - Universal Memory Cortex",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "LoopMemory - Universal Memory for AI",
+    description: "The context engineering infrastructure for AI agents. Store & recall in <500ms.",
+    creator: "@loopmemory",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
 };
 
 export default function RootLayout({
