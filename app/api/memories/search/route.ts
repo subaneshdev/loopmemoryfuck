@@ -41,41 +41,47 @@ export async function POST(request: NextRequest) {
         );
 
         // Filter by score and fetch full memory details from Supabase
-        const results = [];
-        for (const match of matches) {
-            if (match.score && match.score >= minScore) {
-                try {
-                    const memoryId = match.metadata?.memoryId as string;
-                    const memory = await db.memories.findById(memoryId);
+        // Filter by score and fetch full memory details from Supabase in parallel
+        const validMatches = matches.filter(match => match.score && match.score >= minScore);
 
-                    // Fetch Graph Context
-                    const relations = await db.graph.getMemoryRelations(memoryId);
+        const results = await Promise.all(validMatches.map(async (match) => {
+            try {
+                const memoryId = match.metadata?.memoryId as string;
 
-                    const graphContext = relations?.map((r: any) => ({
-                        name: r.node.name,
-                        type: r.node.type,
-                        relation: r.relation_type
-                    })) || [];
+                // Run DB queries in parallel
+                const [memory, relations] = await Promise.all([
+                    db.memories.findById(memoryId),
+                    db.graph.getMemoryRelations(memoryId)
+                ]);
 
-                    results.push({
-                        memory: {
-                            ...memory,
-                            graph_context: graphContext // Attach to response
-                        },
-                        score: match.score,
-                    });
-                } catch (error) {
-                    console.warn(`Memory not found for vector ${match.id}`);
-                }
+                const graphContext = relations?.map((r: any) => ({
+                    name: r.node.name,
+                    type: r.node.type,
+                    relation: r.relation_type
+                })) || [];
+
+                return {
+                    memory: {
+                        ...memory,
+                        graph_context: graphContext
+                    },
+                    score: match.score || 0,
+                };
+            } catch (error) {
+                console.warn(`Memory not found or error fetching details for vector ${match.id}`, error);
+                return null;
             }
-        }
+        }));
+
+        // Filter out any failed results (nulls)
+        const finalResults = results.filter(r => r !== null);
 
         // Sort by score descending
-        results.sort((a, b) => b.score - a.score);
+        finalResults.sort((a, b) => (b?.score || 0) - (a?.score || 0));
 
         const response: SearchMemoriesResponse = {
             success: true,
-            results,
+            results: finalResults as any[],
         };
 
         return NextResponse.json(response);
