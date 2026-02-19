@@ -7,6 +7,8 @@ import type { SearchMemoriesRequest, SearchMemoriesResponse } from '@/types';
 
 // POST /api/memories/search - Semantic search
 export async function POST(request: NextRequest) {
+    const start = Date.now();
+    console.log('[Search] Starting search request');
     try {
         // Get authenticated user
         const session = await getServerSession();
@@ -20,7 +22,7 @@ export async function POST(request: NextRequest) {
         const userId = session.user.id;
 
         const body: SearchMemoriesRequest = await request.json();
-        const { query, projectId, limit = 10, minScore = 0.7 } = body;
+        const { query, projectId, limit = 10, minScore = 0.5 } = body; // Lowered minScore default
 
         // Validation
         if (!query || typeof query !== 'string' || query.trim().length === 0) {
@@ -31,19 +33,25 @@ export async function POST(request: NextRequest) {
         }
 
         // Generate query embedding
+        const embedStart = Date.now();
         const queryEmbedding = await generateEmbedding(query);
+        console.log(`[Search] Embedding generation took ${Date.now() - embedStart}ms`);
 
         // Search Pinecone
+        const pineconeStart = Date.now();
         const matches = await vectorStore.query(
             queryEmbedding,
             { userId, projectId },
             limit
         );
+        console.log(`[Search] Pinecone query took ${Date.now() - pineconeStart}ms. Matches: ${matches.length}`);
 
         // Filter by score and fetch full memory details from Supabase
         // Filter by score and fetch full memory details from Supabase in parallel
         const validMatches = matches.filter(match => match.score && match.score >= minScore);
+        console.log(`[Search] Valid matches (>=${minScore}): ${validMatches.length}`);
 
+        const dbStart = Date.now();
         const results = await Promise.all(validMatches.map(async (match) => {
             try {
                 const memoryId = match.metadata?.memoryId as string;
@@ -72,12 +80,15 @@ export async function POST(request: NextRequest) {
                 return null;
             }
         }));
+        console.log(`[Search] DB enrichment took ${Date.now() - dbStart}ms`);
 
         // Filter out any failed results (nulls)
         const finalResults = results.filter(r => r !== null);
 
         // Sort by score descending
         finalResults.sort((a, b) => (b?.score || 0) - (a?.score || 0));
+
+        console.log(`[Search] Total request duration: ${Date.now() - start}ms`);
 
         const response: SearchMemoriesResponse = {
             success: true,
