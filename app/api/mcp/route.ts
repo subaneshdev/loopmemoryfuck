@@ -195,31 +195,39 @@ async function executeTool(name: string, args: any, userId: string, userEmail: s
 
             console.log(`[Search] Pinecone found ${matches.length} matches`);
 
-            const results = [];
-            for (const match of matches) {
-                console.log(`[Search] Match: ${match.id} | Score: ${match.score} | MemoryID: ${match.metadata?.memoryId}`);
+            console.log(`[MCP Search] Pinecone found ${matches.length} matches`);
+            const dbStart = Date.now();
 
-                if (match.score && match.score >= minScore) {
-                    try {
-                        const memoryId = match.metadata?.memoryId as string;
-                        if (!memoryId) {
-                            console.warn(`[Search] Missing memoryId in metadata for match ${match.id}`);
-                            continue;
-                        }
+            const validMatches = matches.filter(match => match.score && match.score >= minScore);
 
-                        const memory = await db.memories.findById(memoryId);
-                        results.push({
-                            id: memory.id,
-                            content: memory.content,
-                            source: memory.source,
-                            score: match.score,
-                            createdAt: memory.created_at,
-                        });
-                    } catch (error) {
-                        console.warn(`[Search] Memory lookup failed for ID ${match.metadata?.memoryId}:`, error);
+            const results = await Promise.all(validMatches.map(async (match) => {
+                try {
+                    const memoryId = match.metadata?.memoryId as string;
+                    if (!memoryId) {
+                        console.warn(`[MCP Search] Missing memoryId in metadata for match ${match.id}`);
+                        return null;
                     }
+
+                    const memory = await db.memories.findById(memoryId);
+                    return {
+                        id: memory.id,
+                        content: memory.content,
+                        source: memory.source,
+                        score: match.score,
+                        createdAt: memory.created_at,
+                    };
+                } catch (error) {
+                    console.warn(`[MCP Search] Memory lookup failed for ID ${match.metadata?.memoryId}:`, error);
+                    return null;
                 }
-            }
+            }));
+
+            console.log(`[MCP Search] DB lookup took ${Date.now() - dbStart}ms`);
+
+            // Filter out nulls
+            const finalResults = results.filter(r => r !== null);
+            // Sort by score
+            finalResults.sort((a, b) => (b?.score || 0) - (a?.score || 0));
 
             console.log(`[Search] Returning ${results.length} results`);
 
