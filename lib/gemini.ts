@@ -1,5 +1,4 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
+import { GoogleGenerativeAI, TaskType } from '@google/generative-ai';
 const apiKey = process.env.GEMINI_API_KEY!;
 
 if (!apiKey) {
@@ -14,9 +13,14 @@ const genAI = new GoogleGenerativeAI(apiKey);
  */
 export async function generateEmbedding(text: string): Promise<number[]> {
     try {
-        const model = genAI.getGenerativeModel({ model: 'embedding-001' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-embedding-001' });
 
-        const result = await model.embedContent(text);
+        const result = await model.embedContent({
+            content: { parts: [{ text }] },
+            taskType: TaskType.RETRIEVAL_DOCUMENT,
+            /* @ts-ignore - this attribute exists on REST API but might not be correctly typed in old versions */
+            outputDimensionality: 768
+        });
         const embedding = result.embedding;
 
         if (!embedding || !embedding.values) {
@@ -89,7 +93,7 @@ export interface ExtractionResult {
  */
 export async function extractEntities(text: string): Promise<ExtractionResult> {
     try {
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
         const prompt = `
         You are an advanced Knowledge Graph extractor. Analyze the following text and extract:
