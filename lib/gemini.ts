@@ -16,7 +16,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
         const model = genAI.getGenerativeModel({ model: 'gemini-embedding-001' });
 
         const result = await model.embedContent({
-            content: { parts: [{ text }] },
+            content: { role: 'user', parts: [{ text }] },
             taskType: TaskType.RETRIEVAL_DOCUMENT,
             /* @ts-ignore - this attribute exists on REST API but might not be correctly typed in old versions */
             outputDimensionality: 768
