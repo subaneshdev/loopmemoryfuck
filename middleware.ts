@@ -36,8 +36,8 @@ export async function middleware(request: NextRequest) {
         data: { session },
     } = await supabase.auth.getSession();
 
-    // Protect dashboard and install-mcp routes
-    if (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/install-mcp')) {
+    // Protect dashboard, install-mcp, and developer routes
+    if (request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/install-mcp') || request.nextUrl.pathname.startsWith('/developer')) {
         if (!session) {
             // Redirect to login if not authenticated
             return NextResponse.redirect(new URL('/login', request.url));

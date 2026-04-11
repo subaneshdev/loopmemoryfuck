@@ -293,5 +293,76 @@ export const db = {
 
             return { nodes, edges, memLinks };
         }
-    }
+    },
+
+    apiKeys: {
+        async create(apiKey: {
+            user_id: string;
+            name: string;
+            key_hash: string;
+            key_prefix: string;
+            scopes?: string[];
+            rate_limit?: number;
+            expires_at?: string;
+        }) {
+            const { data, error } = await supabase
+                .from('api_keys')
+                .insert(apiKey)
+                .select()
+                .single();
+
+            if (error) throw error;
+            return data;
+        },
+
+        async findByUserId(userId: string) {
+            const { data, error } = await supabase
+                .from('api_keys')
+                .select('id, name, key_prefix, scopes, rate_limit, last_used_at, expires_at, created_at')
+                .eq('user_id', userId)
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+            return data || [];
+        },
+
+        async delete(id: string, userId: string) {
+            const { error } = await supabase
+                .from('api_keys')
+                .delete()
+                .eq('id', id)
+                .eq('user_id', userId);
+
+            if (error) throw error;
+        },
+    },
+
+    apiUsage: {
+        async getByKeyId(keyId: string, limit = 100) {
+            const { data, error } = await supabase
+                .from('api_usage')
+                .select('endpoint, method, status_code, response_time_ms, created_at')
+                .eq('api_key_id', keyId)
+                .order('created_at', { ascending: false })
+                .limit(limit);
+
+            if (error) throw error;
+            return data || [];
+        },
+
+        async getDailyStats(userId: string, days = 30) {
+            const since = new Date();
+            since.setDate(since.getDate() - days);
+
+            const { data, error } = await supabase
+                .from('api_usage')
+                .select('endpoint, created_at')
+                .eq('user_id', userId)
+                .gte('created_at', since.toISOString())
+                .order('created_at', { ascending: true });
+
+            if (error) throw error;
+            return data || [];
+        },
+    },
 };
