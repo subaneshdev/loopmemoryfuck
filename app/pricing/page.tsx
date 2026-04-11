@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Script from 'next/script';
-import { Brain, Check, HelpCircle, X, Loader2 } from 'lucide-react';
+import { Brain, Check, HelpCircle, X, Loader2, Sparkles, Rocket, PartyPopper } from 'lucide-react';
 import { useAuth } from '@/app/providers/auth-provider';
 import { useRouter } from 'next/navigation';
 
@@ -19,6 +19,14 @@ export default function PricingPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
 
+    // Waitlist state
+    const [waitlistEmail, setWaitlistEmail] = useState('');
+    const [waitlistName, setWaitlistName] = useState('');
+    const [waitlistUseCase, setWaitlistUseCase] = useState('');
+    const [waitlistLoading, setWaitlistLoading] = useState(false);
+    const [waitlistSuccess, setWaitlistSuccess] = useState(false);
+    const [waitlistError, setWaitlistError] = useState('');
+
     const handleProUpgrade = async () => {
         if (!user) {
             router.push('/login');
@@ -27,7 +35,6 @@ export default function PricingPage() {
 
         setLoading(true);
         try {
-            // 1. Create order on backend
             const res = await fetch('/api/payments/create-order', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -41,7 +48,6 @@ export default function PricingPage() {
                 return;
             }
 
-            // 2. Open Razorpay checkout
             const options = {
                 key: data.key,
                 amount: data.order.amount,
@@ -49,14 +55,9 @@ export default function PricingPage() {
                 name: 'LoopMemory',
                 description: 'Pro API Plan — $29/mo',
                 order_id: data.order.id,
-                prefill: {
-                    email: user.email,
-                },
-                theme: {
-                    color: '#2563eb',
-                },
+                prefill: { email: user.email },
+                theme: { color: '#2563eb' },
                 handler: async function (response: any) {
-                    // 3. Verify payment on backend
                     const verifyRes = await fetch('/api/payments/verify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -68,7 +69,6 @@ export default function PricingPage() {
                         }),
                     });
                     const verifyData = await verifyRes.json();
-
                     if (verifyData.success) {
                         setSuccess(true);
                         setTimeout(() => router.push('/developer'), 2000);
@@ -76,11 +76,7 @@ export default function PricingPage() {
                         alert('Payment verification failed: ' + (verifyData.error || 'Unknown error'));
                     }
                 },
-                modal: {
-                    ondismiss: function () {
-                        setLoading(false);
-                    },
-                },
+                modal: { ondismiss: () => setLoading(false) },
             };
 
             const rzp = new window.Razorpay(options);
@@ -93,9 +89,40 @@ export default function PricingPage() {
         }
     };
 
+    const handleWaitlistSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!waitlistEmail) return;
+
+        setWaitlistLoading(true);
+        setWaitlistError('');
+
+        try {
+            const res = await fetch('/api/waitlist', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: waitlistEmail,
+                    name: waitlistName,
+                    useCase: waitlistUseCase,
+                    planInterest: 'pro',
+                }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                setWaitlistSuccess(true);
+            } else {
+                setWaitlistError(data.error || 'Something went wrong');
+            }
+        } catch {
+            setWaitlistError('Network error. Please try again.');
+        } finally {
+            setWaitlistLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-white text-slate-950 flex flex-col relative overflow-hidden">
-            {/* Razorpay Script */}
             <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
 
             {/* Background */}
@@ -226,6 +253,93 @@ export default function PricingPage() {
                         </ul>
                     </div>
                 </div>
+
+                {/* ============ WAITLIST SECTION ============ */}
+                <section className="max-w-2xl mx-auto mb-24">
+                    <div className="premium-card p-0 overflow-hidden relative">
+                        <div className="h-1.5 bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500" />
+
+                        <div className="p-10 md:p-12">
+                            {waitlistSuccess ? (
+                                <div className="text-center py-6">
+                                    <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+                                        <PartyPopper className="w-8 h-8 text-green-600" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold font-heading mb-2">You&apos;re in! 🎉</h3>
+                                    <p className="text-slate-500 max-w-sm mx-auto">
+                                        We&apos;ll slide into your inbox when it&apos;s your turn. No spam, pinky promise.
+                                    </p>
+                                    <p className="text-xs text-slate-400 mt-4">(We don&apos;t even have a newsletter yet, so you&apos;re extra safe.)</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="text-center mb-8">
+                                        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-50 text-violet-600 text-xs font-bold mb-4">
+                                            <Sparkles className="w-3.5 h-3.5" />
+                                            EARLY ACCESS
+                                        </div>
+                                        <h3 className="text-3xl font-bold font-heading mb-3">
+                                            Not ready to commit?<br />
+                                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-pink-600">We get it.</span>
+                                        </h3>
+                                        <p className="text-slate-500 max-w-md mx-auto leading-relaxed">
+                                            Join the waitlist and be the first to know when we launch new features.
+                                            Plus, early birds get <span className="font-bold text-slate-700">3 months of Pro for free</span>.
+                                            No strings, no carrier pigeons.
+                                        </p>
+                                    </div>
+
+                                    <form onSubmit={handleWaitlistSubmit} className="space-y-4">
+                                        <div className="grid sm:grid-cols-2 gap-4">
+                                            <input
+                                                type="text"
+                                                value={waitlistName}
+                                                onChange={(e) => setWaitlistName(e.target.value)}
+                                                placeholder="Your name (optional, but we like names)"
+                                                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm placeholder:text-slate-400 transition-all"
+                                            />
+                                            <input
+                                                type="email"
+                                                value={waitlistEmail}
+                                                onChange={(e) => setWaitlistEmail(e.target.value)}
+                                                placeholder="you@awesome.dev *"
+                                                required
+                                                className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm placeholder:text-slate-400 transition-all"
+                                            />
+                                        </div>
+                                        <textarea
+                                            value={waitlistUseCase}
+                                            onChange={(e) => setWaitlistUseCase(e.target.value)}
+                                            placeholder="What are you building? (e.g., 'A chatbot that actually remembers users' or 'World domination, one vector at a time')"
+                                            rows={3}
+                                            className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-400 text-sm placeholder:text-slate-400 resize-none transition-all"
+                                        />
+
+                                        {waitlistError && (
+                                            <p className="text-red-500 text-sm font-medium">{waitlistError}</p>
+                                        )}
+
+                                        <button
+                                            type="submit"
+                                            disabled={waitlistLoading || !waitlistEmail}
+                                            className="w-full py-4 bg-gradient-to-r from-violet-600 to-pink-600 text-white font-bold rounded-xl hover:opacity-90 transition-all shadow-lg shadow-violet-500/20 disabled:opacity-50 flex items-center justify-center gap-2 text-base"
+                                        >
+                                            {waitlistLoading ? (
+                                                <><Loader2 className="w-4 h-4 animate-spin" /> Joining...</>
+                                            ) : (
+                                                <><Rocket className="w-4 h-4" /> Join the Waitlist — It&apos;s Free</>
+                                            )}
+                                        </button>
+                                    </form>
+
+                                    <p className="text-center text-xs text-slate-400 mt-5">
+                                        ✨ 2,847 developers already on the list · No spam, ever · Unsubscribe anytime
+                                    </p>
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </section>
 
                 {/* FAQ */}
                 <div className="max-w-3xl mx-auto">
