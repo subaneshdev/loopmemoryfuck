@@ -41,6 +41,7 @@ export default function Home() {
         <div className="hidden lg:flex items-center gap-8 text-sm font-medium text-slate-600">
           <Link href="#features" className="hover:text-primary transition-colors">Features</Link>
           <Link href="#infra" className="hover:text-primary transition-colors">Infrastructure</Link>
+          <Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link>
           <Link href="/docs" className="hover:text-primary transition-colors">Documentation</Link>
         </div>
 
@@ -248,9 +249,24 @@ export default function Home() {
             </div>
             
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-12 md:gap-24">
-              <FooterColumn title="Product" links={["Features", "Pricing", "Enterprise", "Case Studies"]} />
-              <FooterColumn title="Resources" links={["Documentation", "API Reference", "MCP Guide", "Changelog"]} />
-              <FooterColumn title="Company" links={["About", "Twitter", "Discord", "Terms"]} />
+              <FooterColumn title="Product" links={[
+                { label: "Features", href: "#features" },
+                { label: "Pricing", href: "/pricing" },
+                { label: "Enterprise", href: "/pricing" },
+                { label: "Case Studies", href: "#" }
+              ]} />
+              <FooterColumn title="Resources" links={[
+                { label: "Documentation", href: "/docs" },
+                { label: "API Reference", href: "/docs" },
+                { label: "MCP Guide", href: "/install-mcp" },
+                { label: "Changelog", href: "#" }
+              ]} />
+              <FooterColumn title="Company" links={[
+                { label: "About", href: "#" },
+                { label: "Twitter", href: "#" },
+                { label: "Discord", href: "#" },
+                { label: "Terms", href: "#" }
+              ]} />
             </div>
           </div>
           <div className="max-w-7xl mx-auto mt-20 pt-8 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-4 text-xs font-medium text-slate-400 uppercase tracking-widest">
@@ -278,14 +294,14 @@ function InfraFeature({ title, desc }: { title: string, desc: string }) {
   )
 }
 
-function FooterColumn({ title, links }: { title: string, links: string[] }) {
+function FooterColumn({ title, links }: { title: string, links: { label: string, href: string }[] }) {
   return (
     <div>
       <h5 className="font-bold text-slate-900 mb-6 text-sm uppercase tracking-wider">{title}</h5>
       <ul className="space-y-4">
         {links.map((link) => (
-          <li key={link}>
-            <a href="#" className="text-sm text-slate-500 hover:text-primary transition-colors">{link}</a>
+          <li key={link.label}>
+            <Link href={link.href} className="text-sm text-slate-500 hover:text-primary transition-colors">{link.label}</Link>
           </li>
         ))}
       </ul>
