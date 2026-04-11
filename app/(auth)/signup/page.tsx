@@ -50,66 +50,71 @@ export default function SignupPage() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center px-4">
-                <div className="glass rounded-2xl p-8 max-w-md w-full text-center">
+            <div className="min-h-screen flex items-center justify-center px-4 relative z-10">
+                <div className="fixed inset-0 bg-grid-white pointer-events-none -z-10 opacity-60" />
+                <div className="premium-card p-8 shadow-xl max-w-md w-full text-center">
                     <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                    <h2 className="text-2xl font-bold mb-2">Account Created!</h2>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    <h2 className="text-2xl font-bold font-heading mb-2">Account Created!</h2>
+                    <p className="text-slate-600 mb-4 font-medium">
                         Redirecting to dashboard...
                     </p>
-                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-blue-600" />
+                    <Loader2 className="w-6 h-6 animate-spin mx-auto text-primary" />
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 py-12">
+        <div className="min-h-screen flex items-center justify-center px-4 py-12 relative z-10">
+            <div className="fixed inset-0 bg-grid-white pointer-events-none -z-10 opacity-60" />
+            
             <div className="w-full max-w-md">
                 {/* Logo */}
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-flex items-center gap-2 mb-2">
-                        <Brain className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-                        <span className="text-3xl font-bold gradient-text">LoopMemory</span>
+                        <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <Brain className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-3xl font-bold font-heading tracking-tight">LoopMemory</span>
                     </Link>
-                    <p className="text-gray-600 dark:text-gray-400 mt-2">
+                    <p className="text-slate-500 mt-2 font-medium">
                         Create your account
                     </p>
                 </div>
 
                 {/* Form */}
-                <div className="glass rounded-2xl p-8">
+                <div className="premium-card p-8 shadow-xl">
                     <form onSubmit={handleSubmit} className="space-y-6">
                         {error && (
-                            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl text-red-700 dark:text-red-400 text-sm">
+                            <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 text-sm font-medium">
                                 {error}
                             </div>
                         )}
 
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium mb-2">
+                            <label htmlFor="email" className="block text-sm font-bold text-slate-700 mb-2">
                                 Email
                             </label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
                                     id="email"
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     required
-                                    className="w-full pl-10 pr-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                     placeholder="email@example.com"
                                 />
                             </div>
                         </div>
 
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium mb-2">
+                            <label htmlFor="password" className="block text-sm font-bold text-slate-700 mb-2">
                                 Password
                             </label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
                                     id="password"
                                     type="password"
@@ -117,19 +122,19 @@ export default function SignupPage() {
                                     onChange={(e) => setPassword(e.target.value)}
                                     required
                                     minLength={6}
-                                    className="w-full pl-10 pr-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
-                            <p className="mt-1 text-xs text-gray-500">Minimum 6 characters</p>
+                            <p className="mt-1 text-xs text-slate-500 font-medium tracking-wide">Minimum 6 characters</p>
                         </div>
 
                         <div>
-                            <label htmlFor="confirmPassword" className="block text-sm font-medium mb-2">
+                            <label htmlFor="confirmPassword" className="block text-sm font-bold text-slate-700 mb-2">
                                 Confirm Password
                             </label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                                 <input
                                     id="confirmPassword"
                                     type="password"
@@ -137,7 +142,7 @@ export default function SignupPage() {
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     required
                                     minLength={6}
-                                    className="w-full pl-10 pr-4 py-3 bg-white/50 dark:bg-black/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                                     placeholder="••••••••"
                                 />
                             </div>
@@ -146,7 +151,7 @@ export default function SignupPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:shadow-lg transition-all disabled:opacity-50 flex items-center justify-center gap-2"
+                            className="w-full px-6 py-3 bg-primary hover:bg-blue-700 text-white rounded-xl font-bold shadow-md shadow-blue-500/20 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
                         >
                             {loading ? (
                                 <>
@@ -159,16 +164,16 @@ export default function SignupPage() {
                         </button>
                     </form>
 
-                    <div className="mt-6 text-center text-sm text-gray-600 dark:text-gray-400">
+                    <div className="mt-8 text-center text-sm text-slate-600 font-medium">
                         Already have an account?{' '}
-                        <Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-medium">
+                        <Link href="/login" className="text-primary hover:underline font-bold">
                             Sign in
                         </Link>
                     </div>
                 </div>
 
-                <div className="mt-4 text-center">
-                    <Link href="/" className="text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 transition-colors">
+                <div className="mt-6 text-center">
+                    <Link href="/" className="text-sm font-medium text-slate-500 hover:text-primary transition-colors">
                         ← Back to home
                     </Link>
                 </div>

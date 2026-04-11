@@ -1,23 +1,27 @@
 @import "tailwindcss";
 
-:root {
-  --background: #f0f0f0;
-  /* Light Gray */
-  --foreground: #000000;
+@import "tailwindcss";
 
-  /* ChainGPT-lab Industrial Palette */
-  --primary: #FF5500;
-  /* Bright Industrial Orange */
+:root {
+  --background: #ffffff;
+  --foreground: #020617;
+
+  /* Premium Blue Palette (Supermemory Inspired) */
+  --primary: #0562ef;
   --primary-foreground: #ffffff;
 
-  --secondary: #e0e0e0;
-  --secondary-foreground: #000000;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
 
-  --accent: #FF5500;
+  --accent: #3b82f6;
   --accent-foreground: #ffffff;
 
-  --border: #cccccc;
-  --muted: #999999;
+  --border: #e2e8f0;
+  --muted: #64748b;
+  --muted-foreground: #94a3b8;
+  
+  --card: #ffffff;
+  --card-foreground: #020617;
 }
 
 @theme inline {
@@ -28,10 +32,16 @@
   --color-accent: var(--accent);
   --color-border: var(--border);
   --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
 
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-heading: var(--font-space-grotesk), sans-serif;
   --font-mono: var(--font-geist-mono);
+  
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
 }
 
 body {
@@ -49,78 +59,84 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
-  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  font-weight: 700;
 }
 
-/* Grid Background */
-.bg-grid-pattern {
-  background-size: 100px 100px;
-  background-image:
-    linear-gradient(to right, #e0e0e0 1px, transparent 1px),
-    linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
+/* Subtle Grid Background for that infra feel */
+.bg-grid-white {
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(226, 232, 240, 0.4) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(226, 232, 240, 0.4) 1px, transparent 1px);
 }
 
-/* Utilities */
-.industrial-border {
-  border: 1px solid #cccccc;
+.bg-dot-pattern {
+  background-image: radial-gradient(#e2e8f0 0.5px, transparent 0.5px);
+  background-size: 20px 20px;
 }
 
-.industrial-card {
-  background: #ffffff;
-  border: 1px solid #000000;
-  padding: 1.5rem;
-  transition: all 0.2s ease;
+/* Glassmorphism utilities */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-.industrial-card:hover {
-  transform: translate(-4px, -4px);
-  box-shadow: 4px 4px 0px #FF5500;
+.dark-glass {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.text-massive {
-  font-size: 12rem;
-  line-height: 0.8;
-  font-weight: 900;
-  color: #000;
-  white-space: nowrap;
+/* Modern Card Style */
+.premium-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bg-orange-accent {
-  background-color: var(--primary);
-  color: white;
+.premium-card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  transform: translateY(-2px);
 }
 
-/* Marquee Animation */
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
-  }
-
-  100% {
-    transform: translateX(-50%);
-  }
+/* Animations */
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
 }
 
-.animate-marquee {
-  display: flex;
-  animation: marquee 30s linear infinite;
+.animate-float {
+  animation: float 6s ease-in-out infinite;
 }
 
-/* Scrollbar */
+/* Gradient text */
+.text-gradient {
+  background: linear-gradient(to bottom right, #020617 30%, #475569);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #e0e0e0;
-  border-left: 1px solid #ccc;
+  background: #f8fafc;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #000;
+  background: #cbd5e1;
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #FF5500;
+  background: var(--primary);
 }

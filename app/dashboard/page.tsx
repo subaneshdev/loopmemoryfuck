@@ -171,6 +171,13 @@ export default function DashboardPage() {
                             <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-xs font-bold border border-white/10 text-white">
                                 {user?.email?.[0].toUpperCase()}
                             </div>
+                            <button
+                                onClick={handleSignOut}
+                                className="p-2 ml-2 bg-zinc-800 text-gray-400 hover:text-white hover:bg-zinc-700 rounded-full transition-colors border border-white/10"
+                                title="Log Out"
+                            >
+                                <LogOut className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
                 </div>
