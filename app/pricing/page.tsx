@@ -190,7 +190,7 @@ export default function PricingPage() {
                             <span className="text-4xl font-bold font-heading">$0</span>
                             <span className="text-slate-400">/mo</span>
                         </div>
-                        <Link href="/signup" className="w-full py-3 bg-slate-100 text-slate-900 font-bold rounded-xl text-center hover:bg-slate-200 transition-colors mb-8 block">
+                        <Link href="/login" className="w-full py-3 bg-slate-100 text-slate-900 font-bold rounded-xl text-center hover:bg-slate-200 transition-colors mb-8 block">
                             Start for free
                         </Link>
                         <ul className="space-y-4 flex-1">

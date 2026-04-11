@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '@/lib/supabase-server';
-import razorpay, { PLANS } from '@/lib/razorpay';
+import getRazorpay, { PLANS } from '@/lib/razorpay';
 
 // POST /api/payments/create-order — Create a Razorpay order
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession();
         if (!session) {
-            return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+            return NextResponse.json({ success: false, error: 'Please sign in first' }, { status: 401 });
         }
 
         const body = await request.json();
@@ -17,6 +17,8 @@ export async function POST(request: NextRequest) {
         if (!plan) {
             return NextResponse.json({ success: false, error: 'Invalid plan' }, { status: 400 });
         }
+
+        const razorpay = getRazorpay();
 
         const order = await razorpay.orders.create({
             amount: plan.amount,
@@ -40,8 +42,11 @@ export async function POST(request: NextRequest) {
         });
     } catch (error: any) {
         console.error('Create Razorpay order error:', error);
+        const message = error.message?.includes('Razorpay keys not configured')
+            ? 'Payment system is being set up. Please try again later.'
+            : error.message || 'Failed to create order';
         return NextResponse.json(
-            { success: false, error: error.message || 'Failed to create order' },
+            { success: false, error: message },
             { status: 500 }
         );
     }
