@@ -29,10 +29,10 @@ export default function DocsPage() {
                 </div>
             </nav>
 
-            <main className="max-w-5xl mx-auto px-6 py-16">
+            <main className="max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
                 {/* Hero */}
                 <div className="mb-20">
-                    <h1 className="text-4xl md:text-5xl font-bold font-heading mb-6 tracking-tight">API Reference</h1>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold font-heading mb-6 tracking-tight">API Reference</h1>
                     <p className="text-slate-500 text-lg max-w-2xl leading-relaxed">
                         Give your AI agents persistent long-term memory. The LoopMemory REST API lets you store, search, and manage context programmatically.
                     </p>
@@ -196,7 +196,7 @@ export default function DocsPage() {
 
                 {/* CTA */}
                 <section className="mt-24 text-center">
-                    <div className="premium-card p-12 bg-slate-50">
+                    <div className="premium-card p-8 sm:p-12 bg-slate-50">
                         <h2 className="text-3xl font-bold font-heading mb-4">Ready to build?</h2>
                         <p className="text-slate-500 mb-8 max-w-md mx-auto">Generate your API key and start giving your AI agents persistent memory in minutes.</p>
                         <Link href="/developer" className="px-8 py-4 bg-primary text-white font-bold rounded-full hover:bg-blue-700 transition-all inline-flex items-center gap-2">
@@ -233,8 +233,8 @@ function EndpointSection({
 
     return (
         <div className="premium-card p-0 overflow-hidden" id={`${method.toLowerCase()}-${path.replace(/\//g, '-')}`}>
-            <div className="p-6 border-b border-slate-100">
-                <div className="flex items-center gap-3 mb-3">
+            <div className="p-4 sm:p-6 border-b border-slate-100">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3">
                     <span className={`px-3 py-1 rounded-lg text-xs font-bold uppercase ${methodColor}`}>{method}</span>
                     <code className="font-mono text-sm font-bold">{path}</code>
                 </div>
@@ -246,9 +246,9 @@ function EndpointSection({
                     <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Query Parameters</h4>
                     <div className="space-y-2">
                         {params.map((p) => (
-                            <div key={p.name} className="flex gap-4 text-sm">
-                                <code className="font-mono text-primary font-bold w-24 shrink-0">{p.name}</code>
-                                <span className="text-slate-400 w-16 shrink-0">{p.type}</span>
+                            <div key={p.name} className="flex flex-col sm:flex-row gap-1 sm:gap-4 text-sm">
+                                <code className="font-mono text-primary font-bold sm:w-24 shrink-0">{p.name}</code>
+                                <span className="text-slate-400 sm:w-16 shrink-0">{p.type}</span>
                                 <span className="text-slate-600">{p.desc}</span>
                             </div>
                         ))}

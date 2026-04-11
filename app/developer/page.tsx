@@ -128,18 +128,18 @@ export default function DeveloperPage() {
 
             <main className="max-w-6xl mx-auto px-6 py-12">
                 {/* Tabs */}
-                <div className="flex gap-1 mb-10 bg-slate-100 p-1 rounded-xl w-fit">
+                <div className="flex gap-1 mb-10 bg-slate-100 p-1 rounded-xl w-full sm:w-fit overflow-x-auto">
                     <button
                         onClick={() => setActiveTab('keys')}
-                        className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'keys' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'keys' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
-                        <span className="flex items-center gap-2"><Key className="w-4 h-4" /> API Keys</span>
+                        <span className="flex items-center justify-center gap-2"><Key className="w-4 h-4" /> API Keys</span>
                     </button>
                     <button
                         onClick={() => setActiveTab('docs')}
-                        className={`px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+                        className={`flex-1 sm:flex-none px-4 sm:px-6 py-2.5 rounded-lg text-sm font-bold transition-all ${activeTab === 'docs' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
                     >
-                        <span className="flex items-center gap-2"><Code2 className="w-4 h-4" /> Quick Start</span>
+                        <span className="flex items-center justify-center gap-2"><Code2 className="w-4 h-4" /> Quick Start</span>
                     </button>
                 </div>
 
@@ -172,14 +172,14 @@ export default function DeveloperPage() {
                         )}
 
                         {/* Header */}
-                        <div className="flex items-center justify-between">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <div>
                                 <h2 className="text-2xl font-bold font-heading">Your API Keys</h2>
                                 <p className="text-slate-500 text-sm mt-1">Manage keys for the LoopMemory REST API</p>
                             </div>
                             <button
                                 onClick={() => setShowCreateForm(true)}
-                                className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all flex items-center gap-2 shadow-md shadow-blue-500/10"
+                                className="px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all flex items-center justify-center gap-2 shadow-md shadow-blue-500/10 w-full sm:w-auto"
                             >
                                 <Plus className="w-4 h-4" /> New Key
                             </button>
@@ -189,7 +189,7 @@ export default function DeveloperPage() {
                         {showCreateForm && (
                             <div className="premium-card p-6">
                                 <h3 className="font-bold mb-4">Create New API Key</h3>
-                                <div className="flex gap-3">
+                                <div className="flex flex-col sm:flex-row gap-3">
                                     <input
                                         type="text"
                                         value={newKeyName}
@@ -199,19 +199,21 @@ export default function DeveloperPage() {
                                         onKeyDown={(e) => e.key === 'Enter' && handleCreateKey()}
                                         autoFocus
                                     />
-                                    <button
-                                        onClick={handleCreateKey}
-                                        disabled={creating || !newKeyName.trim()}
-                                        className="px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50"
-                                    >
-                                        {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create'}
-                                    </button>
-                                    <button
-                                        onClick={() => { setShowCreateForm(false); setNewKeyName(''); }}
-                                        className="px-4 py-3 text-slate-500 hover:text-slate-700 text-sm font-medium"
-                                    >
-                                        Cancel
-                                    </button>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={handleCreateKey}
+                                            disabled={creating || !newKeyName.trim()}
+                                            className="flex-1 sm:flex-none px-6 py-3 bg-primary text-white text-sm font-bold rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50"
+                                        >
+                                            {creating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Create'}
+                                        </button>
+                                        <button
+                                            onClick={() => { setShowCreateForm(false); setNewKeyName(''); }}
+                                            className="px-4 py-3 text-slate-500 hover:text-slate-700 text-sm font-medium"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         )}
@@ -236,17 +238,17 @@ export default function DeveloperPage() {
                         ) : (
                             <div className="space-y-3">
                                 {keys.map((key) => (
-                                    <div key={key.id} className="premium-card p-5 flex items-center justify-between group">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-primary">
+                                    <div key={key.id} className="premium-card p-4 sm:p-5 flex items-center justify-between group">
+                                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+                                            <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-primary shrink-0">
                                                 <Key className="w-5 h-5" />
                                             </div>
-                                            <div>
-                                                <div className="font-bold text-sm">{key.name}</div>
-                                                <div className="font-mono text-xs text-slate-500 mt-0.5">{key.key_prefix}</div>
+                                            <div className="min-w-0">
+                                                <div className="font-bold text-sm truncate">{key.name}</div>
+                                                <div className="font-mono text-xs text-slate-500 mt-0.5 truncate">{key.key_prefix}</div>
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-6">
+                                        <div className="flex items-center gap-3 sm:gap-6 shrink-0">
                                             <div className="text-right hidden sm:block">
                                                 <div className="text-xs text-slate-400">
                                                     {key.last_used_at ? `Last used ${new Date(key.last_used_at).toLocaleDateString()}` : 'Never used'}
@@ -258,7 +260,7 @@ export default function DeveloperPage() {
                                             <button
                                                 onClick={() => handleDeleteKey(key.id)}
                                                 disabled={deletingId === key.id}
-                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                                                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors sm:opacity-0 sm:group-hover:opacity-100"
                                             >
                                                 {deletingId === key.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
                                             </button>
@@ -292,7 +294,7 @@ export default function DeveloperPage() {
                                 <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">2</div>
                                 <h3 className="font-bold">Store a memory</h3>
                             </div>
-                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-11">
+                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-0 sm:ml-11">
                                 <div className="text-blue-400">// cURL</div>
                                 <pre className="whitespace-pre-wrap mt-2">{`curl -X POST ${BASE_URL}/api/v1/memories \\
   -H "Content-Type: application/json" \\
@@ -307,7 +309,7 @@ export default function DeveloperPage() {
                                 <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-sm font-bold">3</div>
                                 <h3 className="font-bold">Search memories</h3>
                             </div>
-                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-11">
+                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-0 sm:ml-11">
                                 <div className="text-blue-400">// cURL</div>
                                 <pre className="whitespace-pre-wrap mt-2">{`curl -X POST ${BASE_URL}/api/v1/memories/search \\
   -H "Content-Type: application/json" \\
@@ -322,7 +324,7 @@ export default function DeveloperPage() {
                                 <div className="w-8 h-8 bg-yellow-500 text-white rounded-full flex items-center justify-center text-sm font-bold">JS</div>
                                 <h3 className="font-bold">JavaScript / Node.js</h3>
                             </div>
-                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-11">
+                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-0 sm:ml-11">
                                 <pre className="whitespace-pre-wrap">{`const response = await fetch("${BASE_URL}/api/v1/memories", {
   method: "POST",
   headers: {
@@ -347,7 +349,7 @@ console.log(data.memory.id);`}</pre>
                                 <div className="w-8 h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-sm font-bold">PY</div>
                                 <h3 className="font-bold">Python</h3>
                             </div>
-                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-11">
+                            <div className="bg-slate-900 rounded-xl p-5 font-mono text-sm text-slate-300 overflow-x-auto ml-0 sm:ml-11">
                                 <pre className="whitespace-pre-wrap">{`import requests
 
 response = requests.post(
